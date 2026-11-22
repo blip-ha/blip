@@ -53,6 +53,8 @@ export function problems(catalog: Catalog, profiles: Record<string, ProfileLike>
   const out: string[] = [];
   const byId = new Map(catalog.models.map((m) => [m.id, m]));
   if (byId.size !== catalog.models.length) out.push("catalog/sensors.json: model ids must be unique.");
+  for (const w of catalog.integration_work)
+    if (byId.has(w.id)) out.push(`catalog/sensors.json: integration work id "${w.id}" is also a model id; claim status needs unique ids.`);
 
   for (const [file, p] of Object.entries(profiles)) {
     const where = `profiles/${file}`;
@@ -100,7 +102,7 @@ export function whatItTakes(m: CatalogModel): string {
 }
 
 const wantedLine = (m: CatalogModel) =>
-  `| ${m.name} | ${MODE_NAMES[m.mode]} | ${m.integrations.map((i) => INTEGRATION_NAMES[i]).join(", ")} | **${whatItTakes(m)}** | **[🙋 I'll build this](${claimUrl(m)})** · [Who's on it?](${claimsUrl(m)}) | ${m.notes ?? ""} |`;
+  `| ${m.name} | ${MODE_NAMES[m.mode]} | ${m.integrations.map((i) => INTEGRATION_NAMES[i]).join(", ")} | **${whatItTakes(m)}** | ${statusCell(modelItem(m))} | ${signUpCell(modelItem(m))} | ${m.notes ?? ""} |`;
 
 export function sensorsMd(catalog: Catalog, profileIds: Set<string>): string {
   const supported = catalog.models.filter((m) => m.eligible && profileIds.has(m.id));
@@ -120,19 +122,21 @@ ${supported.map(modelLine).join("\n")}
 
 ## Help wanted
 
-Approved for Blip but not built yet. Own one of these? See [CONTRIBUTING.md](CONTRIBUTING.md), then tap **🙋 I'll build this** on its row so nobody doubles up (check **Who's on it?** first). Want one? Open a **Sensor request** issue.
+Approved for Blip but not built yet. Own one of these? Check its **Status** (🟢 **open**, or the name of whoever is building it), tap **🙋 I'll build this**, then follow [CONTRIBUTING.md](CONTRIBUTING.md). Want one? Open a **Sensor request** issue.
 
 **What it takes:** **Profile file** means one JSON file and no code. **Issue first** means it needs a mode Blip can't draw yet, or ZHA/Matter support: open an issue with your approach and wait for approval before writing code.
 
-| Sensor | Mode | Integration | What it takes | Sign up | Notes |
-|---|---|---|---|---|---|
+| Sensor | Mode | Integration | What it takes | Status | Sign up | Notes |
+|---|---|---|---|---|---|---|
 ${wanted.map(wantedLine).join("\n")}
 
 ### Integration work
 
-| Work | Notes |
-|---|---|
-${catalog.integration_work.map((w) => `| ${w.name} | ${w.notes ?? ""} |`).join("\n")}
+Always **Issue first**.
+
+| Work | Status | Sign up | Notes |
+|---|---|---|---|
+${catalog.integration_work.map((w) => `| ${w.name} | ${statusCell(workItem(w))} | ${signUpCell(workItem(w))} | ${w.notes ?? ""} |`).join("\n")}
 
 ## Not eligible
 
@@ -146,34 +150,65 @@ Something else that detects people? Open a **New sensor proposal** issue.
 }
 
 const REPO = "https://github.com/blip-ha/blip";
+const query = (q: URLSearchParams) => q.toString().replace(/\+/g, "%20");
 
-/** The claim form, pre-filled for one sensor: sensor, title, and for a profile-file sensor the integration and approach too. */
-export function claimUrl(m: CatalogModel): string {
-  const q = new URLSearchParams({ template: "sensor_claim.yml", title: `Building: ${m.name}`, sensor: `${m.name} (${whatItTakes(m)})` });
-  if (whatItTakes(m) === "Profile file") {
-    q.set("integration", "Zigbee2MQTT");
-    q.set("approach", "Add a profile file.");
-  }
-  return `${REPO}/issues/new?${q.toString().replace(/\+/g, "%20")}`;
+/** Something people can sign up to build: a help-wanted sensor or a piece of integration work. */
+export interface ClaimItem {
+  id: string; name: string; takes: string;
+  /** The claim form's dropdown option, exactly. */
+  option: string;
+  /** Extra claim-form fields filled in for this item. */
+  prefill: Record<string, string>;
 }
 
-/** Open claims for one sensor (claim issues are titled "Building: <name>"). */
-export function claimsUrl(m: CatalogModel): string {
-  const q = new URLSearchParams({ q: `is:issue is:open label:"in progress" in:title "${m.name}"` });
-  return `${REPO}/issues?${q.toString().replace(/\+/g, "%20")}`;
+export function modelItem(m: CatalogModel): ClaimItem {
+  const takes = whatItTakes(m);
+  const prefill: Record<string, string> = takes === "Profile file" ? { integration: "Zigbee2MQTT", approach: "Add a profile file." } : {};
+  return { id: m.id, name: m.name, takes, option: `${m.name} (${takes})`, prefill };
 }
+
+export function workItem(w: Catalog["integration_work"][number]): ClaimItem {
+  const integration = INTEGRATION_NAMES[w.id];
+  return { id: w.id, name: w.name, takes: "Issue first", option: `${w.name} (Issue first)`, prefill: integration ? { integration } : {} };
+}
+
+/** Everything open for sign-up: help-wanted sensors, then integration work. */
+export function claimItems(catalog: Catalog, profileIds: Set<string>): ClaimItem[] {
+  return [
+    ...catalog.models.filter((m) => m.eligible && !profileIds.has(m.id)).map(modelItem),
+    ...catalog.integration_work.map(workItem),
+  ];
+}
+
+/** The claim form, pre-filled for one item. */
+export function claimUrl(item: ClaimItem): string {
+  return `${REPO}/issues/new?${query(new URLSearchParams({ template: "sensor_claim.yml", title: `Building: ${item.name}`, sensor: item.option, ...item.prefill }))}`;
+}
+
+/** Open claims for one item, found by the form's dropdown answer (the title can be edited). */
+export function claimsUrl(item: ClaimItem): string {
+  return `${REPO}/issues?${query(new URLSearchParams({ q: `is:issue is:open label:"in progress" "${item.option}" in:body` }))}`;
+}
+
+/** Live status badge. The Claim status workflow keeps status/<id>.json up to date on the claims branch. */
+export function badgeUrl(item: ClaimItem): string {
+  const endpoint = `https://raw.githubusercontent.com/blip-ha/blip/claims/status/${item.id}.json`;
+  return `https://img.shields.io/endpoint?${query(new URLSearchParams({ url: endpoint }))}`;
+}
+
+const statusCell = (item: ClaimItem) => `[![Status](${badgeUrl(item)})](${claimsUrl(item)})`;
+const signUpCell = (item: ClaimItem) => `**[🙋 I'll build this](${claimUrl(item)})**`;
 
 export const HELP_START = "<!-- help-wanted:start -->";
 export const HELP_END = "<!-- help-wanted:end -->";
 
 /** The README's Help wanted list, regenerated between the markers above. */
 export function readmeHelpWanted(catalog: Catalog, profileIds: Set<string>): string {
-  const wanted = catalog.models.filter((m) => m.eligible && !profileIds.has(m.id));
   return `${HELP_START}
 <!-- Generated from catalog/sensors.json. Don't edit by hand: run \`npm run catalog\` in frontend/. -->
-| Sensor | What it takes | Sign up |
-|---|---|---|
-${wanted.map((m) => `| ${m.name} | ${whatItTakes(m)} | **[🙋 I'll build this](${claimUrl(m)})** · [Who's on it?](${claimsUrl(m)}) |`).join("\n")}
+| Sensor or work | What it takes | Status | Sign up |
+|---|---|---|---|
+${claimItems(catalog, profileIds).map((i) => `| ${i.name} | ${i.takes} | ${statusCell(i)} | ${signUpCell(i)} |`).join("\n")}
 ${HELP_END}`;
 }
 
@@ -205,7 +240,7 @@ body:
   - type: dropdown
     id: sensor
     attributes:
-      label: Sensor
+      label: Sensor or work
       options:
 ${options.map((o) => `        - ${yamlStr(o)}`).join("\n")}
     validations:
@@ -230,12 +265,10 @@ ${options.map((o) => `        - ${yamlStr(o)}`).join("\n")}
 }
 
 export function claimForm(catalog: Catalog, profileIds: Set<string>): string {
-  const options = catalog.models
-    .filter((m) => m.eligible && !profileIds.has(m.id))
-    .map((m) => `${m.name} (${whatItTakes(m)})`);
+  const options = claimItems(catalog, profileIds).map((i) => i.option);
   return `# Generated from catalog/sensors.json. Don't edit by hand: run \`npm run catalog\` in frontend/.
 name: I'm building this
-description: Claim a help-wanted sensor you own, so nobody else builds it at the same time.
+description: Claim a help-wanted sensor or integration work, so nobody else builds it at the same time.
 title: "Building: "
 labels: ["in progress"]
 body:
@@ -246,7 +279,7 @@ body:
   - type: dropdown
     id: sensor
     attributes:
-      label: Sensor
+      label: Sensor or work
       options:
 ${options.map((o) => `        - ${yamlStr(o)}`).join("\n")}
     validations:
@@ -273,19 +306,25 @@ ${options.map((o) => `        - ${yamlStr(o)}`).join("\n")}
     attributes:
       label: Checks
       options:
-        - label: I own this sensor and will test on my own Home Assistant, with a walk-test screen recording.
+        - label: I own the sensor(s) and will test on my own Home Assistant, with a walk-test screen recording.
           required: true
 `;
 }
 
 // ---------- CLI ----------
 
+export function loadProfiles(): Record<string, ProfileLike> {
+  const files = readdirSync(path("profiles/")).filter((f) => f.endsWith(".json") && f !== "schema.json").sort();
+  return Object.fromEntries(files.map((f) => [f, readJson(`profiles/${f}`)]));
+}
+export const loadCatalog = () => readJson("catalog/sensors.json") as Catalog;
+
 function main() {
   const checkGenerated = process.argv.includes("--check-generated");
   const check = checkGenerated || process.argv.includes("--check");
-  const catalog = readJson("catalog/sensors.json") as Catalog;
-  const files = readdirSync(path("profiles/")).filter((f) => f.endsWith(".json") && f !== "schema.json").sort();
-  const profiles: Record<string, ProfileLike> = Object.fromEntries(files.map((f) => [f, readJson(`profiles/${f}`)]));
+  const catalog = loadCatalog();
+  const profiles = loadProfiles();
+  const files = Object.keys(profiles);
 
   const ajv = new Ajv2020({ allErrors: true, strict: false });
   const errors: string[] = [];

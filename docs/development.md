@@ -37,13 +37,14 @@ Sensors are described by **profiles**: one JSON file per model in `profiles/`. T
 | `frontend/src/aim.ts` | Aim-test logic: which band you're in, "lost you" detection, the status pill text |
 | `frontend/src/brand.ts`, `styles.ts` | Wordmark, b mark and styles |
 | `frontend/preview/` | `npm run dev`: the real panel driven by a simulated Home Assistant |
-| `frontend/scripts/catalog.ts` | Eligibility and safety checks; generates SENSORS.md and the issue forms |
+| `frontend/scripts/catalog.ts` | Eligibility and safety checks; generates SENSORS.md, the issue forms and the README's Help wanted list |
+| `frontend/scripts/claims.ts` | Claim status: turns open **I'm building this** issues into the Status badges (run by the Claim status workflow) |
 | `frontend/scripts/profile-check.ts`, `ha-export.jinja` | The profile checker (does a profile find a real sensor?) |
 | `frontend/scripts/bundle-profiles.ts` | Writes `profiles.json` after the build |
 | `profiles/` | One file per sensor model, plus `schema.json` and its [README](../profiles/README.md) |
 | `catalog/` | Approved models (maintainer only) and `schema.json` |
 | `tests/` | Integration tests (pytest) and `smoke/smoke.py`, which boots a real Home Assistant |
-| `.github/workflows/` | CI, Contributor guard, Sync generated files, Labels |
+| `.github/workflows/` | CI, Contributor guard, Sync generated files, Claim status, Labels |
 | `.github/scripts/` | Contributor guard rules and their self-test |
 
 ## Commands
@@ -99,6 +100,8 @@ ZHA or Matter support follows the same path: issue first. Usually it means profi
 2. **Review and merge.** `main` is protected: pull requests only, with the maintainer's review (CODEOWNERS). Only the maintainer merges.
 3. **Sync generated files.** After a merge, a workflow rebuilds SENSORS.md, the issue forms, the README's Help wanted list, `blip-panel.js` and `profiles.json`. If anything changed, it opens a **Sync generated files** pull request. **Don't commit generated files in a contributor pull request.**
 4. **Release.** Home Assistant users get changes only through a release (below).
+
+**Claim status** runs whenever a claim issue opens, closes or changes (and daily). It writes one badge file per sensor or piece of integration work to the `claims` branch, which only that workflow writes; the README and SENSORS.md badges read it. Don't commit to `claims` or protect it.
 
 Dependabot opens grouped dependency updates every Monday, and CI also runs weekly against the newest Home Assistant.
 
