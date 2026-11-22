@@ -15,7 +15,7 @@
   </tr>
 </table>
 
-<p align="center"><a href="https://github.com/blip-ha/blip/blob/main/SENSORS.md#help-wanted"><img src="https://raw.githubusercontent.com/blip-ha/blip/main/brand/help-wanted-button.png" width="400" alt="Help wanted: own one of these sensors? Add it to Blip"></a></p>
+<p align="center"><a href="https://github.com/blip-ha/blip/blob/main/SENSORS.md#help-wanted"><img src="https://raw.githubusercontent.com/blip-ha/blip/main/brand/help-wanted-button.png" width="460" alt="Help wanted: own an unsupported sensor or integration? Add it to Blip"></a></p>
 
 <!-- help-wanted:start -->
 <p align="center">FP1E, FP310, FP1, P1, High Precision, P2, FP400, plus ZHA and Thread/Matter support.</p>
