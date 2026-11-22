@@ -2,6 +2,12 @@
 
 All notable changes to Blip. Versions follow the integration's `manifest.json`.
 
+## Unreleased
+
+### Security
+- Dependabot checks npm packages and GitHub Actions weekly, one grouped pull request per ecosystem.
+- The HACS and hassfest validation actions are pinned to exact commits.
+
 ## 0.4.0 (2026-11-22)
 
 ### Added

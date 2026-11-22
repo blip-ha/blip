@@ -25,7 +25,9 @@ jobs:
   guard:
     name: Contributor guard
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login != 'dbalaska32'
+    # The maintainer's pull requests and Dependabot's dependency updates (which the maintainer
+    # reviews and merges) don't need the contributor checks.
+    if: ${{ !contains(fromJSON('["dbalaska32", "dependabot[bot]"]'), github.event.pull_request.user.login) }}
     steps:
       - name: Check out the guard (base branch, not the pull request)
         uses: actions/checkout@v7

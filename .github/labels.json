@@ -33,5 +33,10 @@
     "name": "maintainer-approved",
     "color": "0e8a16",
     "description": "Maintainer reviewed this PR; allows changes outside profiles/"
+  },
+  {
+    "name": "dependencies",
+    "color": "0366d6",
+    "description": "Dependency update (Dependabot)"
   }
 ]
