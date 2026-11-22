@@ -64,10 +64,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C "$BRANCH"
           git add -A
-          git commit -m "Sync generated files" -m "Rebuilt from main by the Sync generated files workflow: SENSORS.md, the issue forms and the panel bundle."
+          git commit -m "Sync generated files" -m "Rebuilt from main by the Sync generated files workflow: SENSORS.md, the README Help wanted list, the issue forms and the panel bundle."
           git push --force origin "$BRANCH"
           if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')" ]; then
             gh pr create --base main --head "$BRANCH" --title "Sync generated files" \
-              --body "Rebuilt automatically after recent merges to main: SENSORS.md, the issue forms and the panel bundle. Nothing here is hand-written; merge once CI is green."
+              --body "Rebuilt automatically after recent merges to main: SENSORS.md, the README Help wanted list, the issue forms and the panel bundle. Nothing here is hand-written; merge once CI is green."
           fi
           gh workflow run ci.yml --ref "$BRANCH"

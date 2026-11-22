@@ -1,6 +1,6 @@
 // Catalog tool. Plain Node (type stripping), no build step.
 //
-//   node scripts/catalog.ts                    regenerate SENSORS.md and the issue forms
+//   node scripts/catalog.ts                    regenerate SENSORS.md, the issue forms and the README's Help wanted list
 //   node scripts/catalog.ts --check            CI: fail on any schema, eligibility or safety problem
 //   node scripts/catalog.ts --check-generated  also fail if the generated files are out of date
 //
@@ -145,6 +145,26 @@ Something else that detects people? Open a **New sensor proposal** issue.
 `;
 }
 
+export const HELP_START = "<!-- help-wanted:start -->";
+export const HELP_END = "<!-- help-wanted:end -->";
+
+/** The README's Help wanted list, regenerated between the markers above. */
+export function readmeHelpWanted(catalog: Catalog, profileIds: Set<string>): string {
+  const wanted = catalog.models.filter((m) => m.eligible && !profileIds.has(m.id));
+  return `${HELP_START}
+<!-- Generated from catalog/sensors.json. Don't edit by hand: run \`npm run catalog\` in frontend/. -->
+| Sensor | What it takes |
+|---|---|
+${wanted.map((m) => `| ${m.name} | ${whatItTakes(m)} |`).join("\n")}
+${HELP_END}`;
+}
+
+export function updateReadme(readme: string, block: string): string {
+  const a = readme.indexOf(HELP_START), b = readme.indexOf(HELP_END);
+  if (a < 0 || b < a) throw new Error(`README.md is missing the ${HELP_START} / ${HELP_END} markers.`);
+  return readme.slice(0, a) + block + readme.slice(b + HELP_END.length);
+}
+
 const yamlStr = (s: string) => JSON.stringify(s);
 
 export function requestForm(catalog: Catalog, profileIds: Set<string>): string {
@@ -265,6 +285,7 @@ function main() {
     ["SENSORS.md", sensorsMd(catalog, ids)],
     [".github/ISSUE_TEMPLATE/sensor_request.yml", requestForm(catalog, ids)],
     [".github/ISSUE_TEMPLATE/sensor_claim.yml", claimForm(catalog, ids)],
+    ["README.md", updateReadme(readFileSync(path("README.md"), "utf8"), readmeHelpWanted(catalog, ids))],
   ];
   for (const [file, content] of outputs) {
     const current = existsSync(path(file)) ? readFileSync(path(file), "utf8") : "";

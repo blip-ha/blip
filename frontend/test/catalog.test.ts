@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claimForm, problems, requestForm, sensorsMd, whatItTakes, type Catalog, type ProfileLike } from "../scripts/catalog.ts";
+import { claimForm, HELP_END, HELP_START, problems, readmeHelpWanted, requestForm, sensorsMd, updateReadme, whatItTakes, type Catalog, type ProfileLike } from "../scripts/catalog.ts";
 import catalogJson from "../../catalog/sensors.json";
 import fp300 from "../../profiles/aqara_fp300.json";
 
@@ -89,5 +89,19 @@ describe("generated files", () => {
     const supported = md.split("## Help wanted")[0];
     expect(supported).toContain("| Aqara FP1E |");
     expect(requestForm(catalog, new Set(["aqara_fp300", "aqara_fp1e"]))).not.toContain("FP1E");
+  });
+});
+
+describe("README Help wanted list", () => {
+  it("lists only approved, unbuilt models and keeps the rest of the README", () => {
+    const block = readmeHelpWanted(catalog, new Set(["aqara_fp300"]));
+    expect(block).toContain("| Aqara FP1E | Profile file |");
+    expect(block).not.toContain("FP300");
+    expect(block).not.toContain("FP2 ");
+    const readme = `top\n${HELP_START}\nold\n${HELP_END}\nbottom`;
+    expect(updateReadme(readme, block)).toBe(`top\n${block}\nbottom`);
+  });
+  it("fails loudly if the markers are missing", () => {
+    expect(() => updateReadme("no markers", "x")).toThrow(/markers/);
   });
 });
