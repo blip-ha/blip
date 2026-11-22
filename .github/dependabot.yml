@@ -1,0 +1,30 @@
+# Weekly dependency updates, grouped into one pull request per ecosystem.
+# Dependabot pull requests run the full CI; the maintainer reviews and merges them.
+# After an npm update merges, the Sync generated files workflow rebuilds the panel bundle.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Chicago
+    labels: ["dependencies"]
+    open-pull-requests-limit: 5
+    groups:
+      npm:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Chicago
+    labels: ["dependencies"]
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        patterns: ["*"]

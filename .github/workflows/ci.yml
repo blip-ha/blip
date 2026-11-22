@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: home-assistant/actions/hassfest@master
+      - uses: home-assistant/actions/hassfest@07f46fd2e19967768b5fd3000f91f857452b767c # 2026.11.0
 
   hacs:
     name: HACS validation
@@ -122,7 +122,7 @@ jobs:
     # private; it runs automatically once the repo goes public.
     if: ${{ !github.event.repository.private }}
     steps:
-      - uses: hacs/action@main
+      - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa # main as of 2026-06-08 (no newer release tag)
         with:
           category: integration
           # Not in home-assistant/brands yet; that's a launch task.
