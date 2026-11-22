@@ -25,10 +25,10 @@ Sensors are described by **profiles**: one JSON file per model in `profiles/`. T
 
 | Path | What it does |
 |---|---|
-| `custom_components/blip/__init__.py` | Registers the sidebar panel and serves `frontend/blip-panel.js` (cache-busted by a content hash) |
+| `custom_components/blip/__init__.py` | Registers the sidebar panel, serves `frontend/blip-panel.js` (cache-busted by a content hash) and loads the sidebar icon set `blip-icons.js` on every page |
 | `custom_components/blip/config_flow.py` | One-click setup, single instance |
 | `custom_components/blip/diagnostics.py` | Download diagnostics: versions plus detected sensors by role, with names, areas, entity ids and URLs left out |
-| `custom_components/blip/frontend/` | **Generated.** `blip-panel.js` (the built panel) and `profiles.json` (match rules diagnostics reads) |
+| `custom_components/blip/frontend/` | **Generated.** `blip-panel.js` (the built panel), `profiles.json` (match rules diagnostics reads) and `blip-icons.js` (the `blip:mark` sidebar icon) |
 | `frontend/src/panel.ts` | The `<blip-panel>` element: sensor picker, status card, aim test, band editing, footer |
 | `frontend/src/discovery.ts` | Finds sensors: device registry model first, then entity-name patterns. Plain Node-compatible; the profile checker runs it too. |
 | `frontend/src/modes.ts` | **The list of modes Blip can draw** and the entity roles each one needs |
@@ -36,11 +36,12 @@ Sensors are described by **profiles**: one JSON file per model in `profiles/`. T
 | `frontend/src/fan.ts` | Band mode drawing (the SVG fan) and the band bitmask helpers |
 | `frontend/src/aim.ts` | Aim-test logic: which band you're in, "lost you" detection, the status pill text |
 | `frontend/src/brand.ts`, `styles.ts` | Wordmark, b mark and styles |
+| `frontend/src/sidebar-icon.ts` | The 24×24 two-tone Blip mark for the sidebar |
 | `frontend/preview/` | `npm run dev`: the real panel driven by a simulated Home Assistant |
 | `frontend/scripts/catalog.ts` | Eligibility and safety checks; generates SENSORS.md, the issue forms and the README's Help wanted line |
 | `frontend/scripts/claims.ts` | Claim status: turns open **I'm building this** issues into the Status badges (run by the Claim status workflow) |
 | `frontend/scripts/profile-check.ts`, `ha-export.jinja` | The profile checker (does a profile find a real sensor?) |
-| `frontend/scripts/bundle-profiles.ts` | Writes `profiles.json` after the build |
+| `frontend/scripts/bundle-profiles.ts`, `bundle-icons.ts` | Write `profiles.json` and `blip-icons.js` after the build |
 | `profiles/` | One file per sensor model, plus `schema.json` and its [README](../profiles/README.md) |
 | `catalog/` | Approved models (maintainer only) and `schema.json` |
 | `tests/` | Integration tests (pytest) and `smoke/smoke.py`, which boots a real Home Assistant |

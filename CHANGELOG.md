@@ -2,6 +2,11 @@
 
 All notable changes to Blip. Versions follow the integration's `manifest.json`.
 
+## 0.4.2 (2026-11-22)
+
+### Changed
+- **Sidebar:** Blip's own mark (the b with a radar dot) replaces the generic radar icon, and the entry reads **blip**, like the logo. It follows your theme's colors like every other sidebar icon.
+
 ## 0.4.1 (2026-11-22)
 
 Docs and project housekeeping; the Blip page itself is unchanged.

@@ -990,8 +990,8 @@ var Je = {
 	renderFooter() {
 		let e = this.current(), t = e ? this.hass?.devices?.[e.key]?.model : void 0;
 		return P`<div class="footmark">${De(44, "blip")}</div>
-      <p class="ver">v${"0.4.1"}</p>
-      <p class="report"><a href=${qe("0.4.1", this.hass?.config?.version, e, t)} target="_blank" rel="noopener noreferrer">Report a problem</a></p>`;
+      <p class="ver">v${"0.4.2"}</p>
+      <p class="report"><a href=${qe("0.4.2", this.hass?.config?.version, e, t)} target="_blank" rel="noopener noreferrer">Report a problem</a></p>`;
 	}
 	render() {
 		if (!this.hass) return P`<main>${this.renderHeader()}<div class="card"><p class="muted">Connecting to Home Assistant…</p></div></main>`;

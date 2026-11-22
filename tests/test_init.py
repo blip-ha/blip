@@ -26,8 +26,8 @@ async def test_panel_lifecycle(hass: HomeAssistant, hass_client) -> None:
 
     panel = hass.data[frontend.DATA_PANELS][PANEL_URL_PATH]
     d = panel.to_response()
-    assert d["title"] == "Blip"
-    assert d["icon"] == "mdi:radar"
+    assert d["title"] == "blip"
+    assert d["icon"] == "blip:mark"
     assert d["require_admin"] is False
     module_url = d["config"]["_panel_custom"]["module_url"]
     assert d["config"]["_panel_custom"]["name"] == "blip-panel"
@@ -38,6 +38,14 @@ async def test_panel_lifecycle(hass: HomeAssistant, hass_client) -> None:
     assert resp.status == 200
     assert 'customElements.define("blip-panel"' in await resp.text()
 
+    # The sidebar icon set loads on every page.
+    icons_url = hass.data[DOMAIN]["icons_url"]
+    assert icons_url.startswith("/blip_static/blip-icons.js?v=")
+    assert icons_url in hass.data[frontend.DATA_EXTRA_MODULE_URL].urls
+    resp = await client.get(icons_url)
+    assert resp.status == 200
+    assert "window.customIcons.blip" in await resp.text()
+
     # Reload keeps working (static path is registered only once).
     assert await hass.config_entries.async_reload(entry.entry_id)
     await hass.async_block_till_done()
@@ -46,6 +54,7 @@ async def test_panel_lifecycle(hass: HomeAssistant, hass_client) -> None:
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
     assert PANEL_URL_PATH not in hass.data[frontend.DATA_PANELS]
+    assert icons_url not in hass.data[frontend.DATA_EXTRA_MODULE_URL].urls
 
 
 async def test_single_instance(hass: HomeAssistant) -> None:
