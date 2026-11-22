@@ -972,7 +972,7 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
 	}
 	renderFooter() {
 		return P`<div class="footmark">${De(44, "blip")}</div>
-      <p class="ver">v${"0.3.1"}</p>`;
+      <p class="ver">v${"0.3.2"}</p>`;
 	}
 	render() {
 		if (!this.hass) return P`<main>${this.renderHeader()}<div class="card"><p class="muted">Connecting to Home Assistant…</p></div></main>`;

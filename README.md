@@ -2,6 +2,19 @@
 
 **Aim your presence sensors by walking the room.** Blip adds a page to your Home Assistant sidebar that shows a sensor's detection area live while you move, so you can place sensors that cover every room and barely overlap. It works in the Home Assistant phone app too.
 
+<table>
+  <tr>
+    <td align="center"><img src="https://raw.githubusercontent.com/blip-ha/blip/main/docs/screenshots/aim-test.png" width="240" alt="Aim test: the band you're standing in glows"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/blip-ha/blip/main/docs/screenshots/lost-you.png" width="240" alt="Lost you: the band turns orange when the sensor stops seeing you"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/blip-ha/blip/main/docs/screenshots/edit-bands.png" width="240" alt="Edit bands: switch distance bands on or off"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Aim test</b><br>The band you're in glows as you walk.</td>
+    <td align="center"><b>Lost you</b><br>Orange when the sensor stops seeing you.</td>
+    <td align="center"><b>Edit bands</b><br>Switch distance bands on or off.</td>
+  </tr>
+</table>
+
 ## Supported sensors
 
 | Sensor | Mode | Status |
