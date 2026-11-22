@@ -1,4 +1,4 @@
-<p align="center"><img src="brand/blip-wordmark-dark.svg#gh-dark-mode-only" height="90" alt="blip"><img src="brand/blip-wordmark-light.svg#gh-light-mode-only" height="90" alt="blip"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/blip-ha/blip/main/brand/readme-banner.png" width="480" alt="blip"></p>
 
 **Aim your presence sensors by walking the room.** Blip adds a page to your Home Assistant sidebar that shows a sensor's detection area live while you move, so you can place sensors that cover every room and barely overlap. It works in the Home Assistant phone app too.
 
