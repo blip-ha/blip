@@ -94,7 +94,7 @@ async def run(session: aiohttp.ClientSession) -> None:
     if not panel:
         fail(f"no blip panel; panels: {sorted(panels)}")
     custom = panel["config"]["_panel_custom"]
-    if (panel["title"], panel["icon"], panel["require_admin"]) != ("Blip", "mdi:radar", False):
+    if (panel["title"], panel["icon"], panel["require_admin"]) != ("blip", "blip:mark", False):
         fail(f"unexpected panel: {panel}")
     if custom["name"] != "blip-panel":
         fail(f"unexpected element: {custom}")
