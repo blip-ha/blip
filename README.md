@@ -88,28 +88,16 @@ While the test is on, Blip re-sends the tracking request every 10 minutes, right
 
 ## Development
 
-Each supported sensor model is one JSON file in [`profiles/`](profiles/README.md). Adding a sensor that uses an existing mode needs only a new profile, no code.
-
-The integration lives in `custom_components/blip/`. The sidebar panel is a Lit web component in `frontend/`, built into `custom_components/blip/frontend/blip-panel.js`. The built file is committed so installs need no build step.
+Blip is a small Home Assistant integration (`custom_components/blip/`) plus a sidebar panel written in TypeScript and Lit (`frontend/`). Each supported sensor model is one JSON file in [`profiles/`](profiles/README.md).
 
 ```bash
 cd frontend
 npm install
 npm run dev     # preview with a simulated FP300 (no Home Assistant needed)
-npm test        # unit tests
-npm run build   # rebuild custom_components/blip/frontend/blip-panel.js
+npm test
 ```
 
-Integration tests run against Home Assistant core:
-
-```bash
-pip install pytest-homeassistant-custom-component
-pip install "$(python tests/frontend_requirement.py)"
-pytest
-python tests/smoke/smoke.py   # boots a real Home Assistant and adds Blip
-```
-
-CI runs all of this on every pull request and weekly, on the oldest supported Home Assistant (2025.1) and the latest, plus hassfest and HACS validation. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+**[docs/development.md](docs/development.md)** covers the rest: the code map, every command, testing on your own Home Assistant, adding a new mode, how changes land, and releasing. CI runs everything on each pull request and weekly, on Home Assistant 2025.1 and the latest. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 ## Contributing
 

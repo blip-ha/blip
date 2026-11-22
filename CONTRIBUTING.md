@@ -15,6 +15,8 @@ That's it. The rest of this page walks you through it.
 - **Bigger changes start with a conversation.** A new mode (Cone, Map, Regions), ZHA or Matter support, or anything in discovery or the core app: open an issue describing your approach first. The maintainer reviews it with you before you write code, which saves everyone time.
 - **Not listed yet?** Use the **New sensor proposal** issue form. Blip supports sensors that detect people and give Home Assistant something to draw: distance, zones, positions or a motion cone.
 
+Want to go further, like a new mode or ZHA/Matter support? After your issue is approved, [docs/development.md](docs/development.md) has the code map and a step-by-step for adding a mode.
+
 An automatic check called **Contributor guard** helps pull requests land smoothly: it confirms a sensor pull request adds one profile file and includes the testing details below. If it flags something, the message says what to adjust.
 
 ## Adding a sensor
