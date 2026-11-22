@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend (types, tests, catalog, bundle up to date)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Catalog, eligibility and safety checks; SENSORS.md and request form up to date
+        run: npm run catalog:check
+      - run: npm run build
+      - name: Committed bundle matches the source
+        run: |
+          git diff --exit-code -- ../custom_components/blip/frontend || {
+            echo "::error::custom_components/blip/frontend/blip-panel.js is out of date. Run 'npm run build' in frontend/ and commit it."
+            exit 1
+          }
+
+  pytest:
+    name: Tests on HA ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Oldest supported HA (hacs.json "homeassistant"). pycares is pinned to its
+          # early-2025 release: newer pycares leaves a thread that HA 2025.1's test
+          # harness flags. That's a test-only constraint, not a Blip one.
+          - label: "2025.1 (oldest)"
+            python: "3.13"
+            packages: "pytest-homeassistant-custom-component==0.13.205 pycares==4.5.0"
+          # Newest HA the test harness supports.
+          - label: "latest"
+            python: "3.14"
+            packages: "pytest-homeassistant-custom-component"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Home Assistant test harness
+        run: |
+          pip install ${{ matrix.packages }}
+          pip install "$(python tests/frontend_requirement.py)"
+      - run: python -c "import homeassistant.const as c; print('Home Assistant', c.__version__)"
+      - run: pytest
+
+  smoke:
+    name: Real HA boot on ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: "2025.1 (oldest)"
+            python: "3.13"
+            packages: "homeassistant==2025.1.4 pycares==4.5.0"
+          # Newest release, including ones the test harness hasn't caught up with yet.
+          - label: "latest"
+            python: "3.14"
+            packages: "homeassistant"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      # HA 2026.11+ refuses to start outside a virtual environment or container.
+      - name: Create virtual environment
+        run: |
+          python -m venv "$RUNNER_TEMP/venv"
+          echo "$RUNNER_TEMP/venv/bin" >> "$GITHUB_PATH"
+      - name: Install Home Assistant
+        run: |
+          pip install ${{ matrix.packages }}
+          pip install "$(python tests/frontend_requirement.py)"
+      - run: python tests/smoke/smoke.py
+
+  hassfest:
+    name: hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    # The HACS action can only validate public repositories. Skipped while the repo is
+    # private; it runs automatically once the repo goes public.
+    if: ${{ !github.event.repository.private }}
+    steps:
+      - uses: hacs/action@main
+        with:
+          category: integration
+          # Not in home-assistant/brands yet; that's a launch task.
+          ignore: brands

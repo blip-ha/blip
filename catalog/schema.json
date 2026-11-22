@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/blip-ha/blip/catalog/schema.json",
+  "title": "Blip sensor catalog",
+  "description": "Every model Blip has decided on. Only the maintainer edits this file. A model is 'supported' once profiles/<id>.json exists; an eligible model without a profile is 'help wanted'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["models", "integration_work", "not_eligible_rule"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "manufacturer", "mode", "integrations", "eligible"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$" },
+          "name": { "type": "string", "minLength": 1 },
+          "manufacturer": { "type": "string", "minLength": 1 },
+          "mode": { "enum": ["band", "cone", "map", "regions"] },
+          "integrations": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "enum": ["zigbee2mqtt", "zha", "matter"] }
+          },
+          "eligible": { "type": "boolean" },
+          "reason": { "description": "Why it isn't eligible.", "type": "string", "minLength": 1 },
+          "devices": {
+            "description": "How the model appears in Home Assistant's device registry, when known. Used to stop one profile from claiming another model's devices.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "minProperties": 1,
+              "properties": {
+                "manufacturer": { "type": "string" },
+                "model": { "type": "string" },
+                "model_id": { "type": "string" }
+              },
+              "anyOf": [{ "required": ["model"] }, { "required": ["model_id"] }]
+            }
+          },
+          "notes": { "type": "string" }
+        },
+        "if": { "properties": { "eligible": { "const": false } } },
+        "then": { "required": ["reason"] }
+      }
+    },
+    "integration_work": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "not_eligible_rule": { "type": "string" }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "./schema.json",
+  "id": "aqara_fp300",
+  "name": "Aqara FP300",
+  "manufacturer": "Aqara",
+  "integration": "zigbee2mqtt",
+  "mode": "band",
+  "match": {
+    "devices": [
+      { "manufacturer": "Aqara", "model": "Presence sensor FP300" },
+      { "model_id": "PS-S04D" }
+    ]
+  },
+  "entities": {
+    "range": { "domain": "number", "suffix": "_detection_range", "max": 16777215 },
+    "presence": { "domain": "binary_sensor", "suffix": "_presence" },
+    "pir": { "domain": "binary_sensor", "suffix": "_pir_detection" },
+    "distance": { "domain": "sensor", "suffix": "_target_distance" },
+    "battery": { "domain": "sensor", "suffix": "_battery" },
+    "track": { "domain": "button", "suffix": "_track_target_distance" }
+  },
+  "field_of_view": { "angle_deg": 120, "range_m": 6 },
+  "band": { "count": 24, "size_m": 0.25, "encoding": "bitmask_nearest_first" },
+  "behavior": { "sleepy": true, "track_rearm_min": 10, "lost_after_s": 3 }
+}

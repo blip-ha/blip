@@ -1,0 +1,66 @@
+name: Contributor guard
+
+# Keeps the Blip app safe: a pull request from anyone but the maintainer may only ADD a sensor
+# profile (data, not code), plus the files CI regenerates from it and verifies byte for byte.
+# Anything else needs the maintainer to review it and add the `maintainer-approved` label.
+#
+# Why pull_request_target: this workflow always runs from the base branch, so a pull request
+# can't edit or switch off the guard. It never checks out or runs the pull request's code; it
+# only reads the list of changed file names from the GitHub API.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  guard:
+    name: Contributor guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check which files this pull request changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'maintainer-approved') }}
+          MAINTAINER: dbalaska32
+        run: |
+          set -euo pipefail
+          if [ "$AUTHOR" = "$MAINTAINER" ]; then
+            echo "Opened by the maintainer."
+            exit 0
+          fi
+          if [ "$APPROVED" = "true" ]; then
+            echo "The maintainer reviewed this pull request (maintainer-approved label)."
+            exit 0
+          fi
+
+          gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | [.status, .filename] | @tsv' > files.tsv
+          blocked=0
+          while IFS=$'\t' read -r status file; do
+            allowed=no
+            if [[ "$file" =~ ^profiles/[a-z0-9]+(_[a-z0-9]+)*\.json$ && "$file" != "profiles/schema.json" && "$status" == "added" ]]; then
+              allowed=yes   # a new sensor profile
+            elif [[ "$status" == "modified" && ( "$file" == "SENSORS.md" \
+                  || "$file" == ".github/ISSUE_TEMPLATE/sensor_request.yml" \
+                  || "$file" == "custom_components/blip/frontend/blip-panel.js" ) ]]; then
+              allowed=yes   # regenerated from the profile; CI checks it matches exactly
+            fi
+            if [ "$allowed" = yes ]; then
+              echo "  ok       $status  $file"
+            else
+              echo "  BLOCKED  $status  $file"
+              blocked=1
+            fi
+          done < files.tsv
+
+          if [ "$blocked" = 1 ]; then
+            echo
+            echo "::error::This pull request changes files that only the maintainer can change. Contributors can add a new file in profiles/ (plus the regenerated SENSORS.md, sensor request form and panel bundle). See CONTRIBUTING.md. If the change is needed, the maintainer reviews it and adds the maintainer-approved label."
+            exit 1
+          fi
+          echo "Only allowed files changed."

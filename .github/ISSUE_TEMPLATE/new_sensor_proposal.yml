@@ -1,0 +1,68 @@
+name: New sensor proposal
+description: Propose a sensor that isn't in Blip's catalog yet. The maintainer decides if it's eligible.
+title: "Proposal: "
+labels: ["proposal", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check [SENSORS.md](https://github.com/blip-ha/blip/blob/HEAD/SENSORS.md) first: if the sensor is already listed, use **Sensor request** instead.
+        Blip only supports sensors that detect people and give Home Assistant something to draw: distance, zones, positions or a motion cone.
+  - type: input
+    id: manufacturer
+    attributes:
+      label: Manufacturer
+      placeholder: Aqara
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: Name and model number, as Home Assistant shows it under Settings → Devices & services → Devices.
+      placeholder: Presence sensor FP300 (PS-S04D)
+    validations:
+      required: true
+  - type: dropdown
+    id: integration
+    attributes:
+      label: How is it connected to Home Assistant?
+      options:
+        - Zigbee2MQTT
+        - ZHA
+        - Thread/Matter
+        - Something else (explain below)
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: What could Blip show?
+      options:
+        - "Band: distance bands"
+        - "Cone: whole cone lights on motion"
+        - "Map: live positions of several people"
+        - "Regions: a zone grid"
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: entities
+    attributes:
+      label: What Home Assistant gets from it
+      description: The device's entities (from its device page), or what Zigbee2MQTT lists under Exposes. Distance, zones or coordinates matter most.
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: It detects people (presence or motion).
+          required: true
+        - label: I own one and can test on my Home Assistant.
+  - type: textarea
+    id: details
+    attributes:
+      label: Anything else?

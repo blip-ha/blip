@@ -1,0 +1,100 @@
+{
+  "$schema": "./schema.json",
+  "models": [
+    {
+      "id": "aqara_fp300",
+      "name": "Aqara FP300",
+      "manufacturer": "Aqara",
+      "mode": "band",
+      "integrations": ["zigbee2mqtt"],
+      "eligible": true,
+      "devices": [{ "manufacturer": "Aqara", "model": "Presence sensor FP300" }, { "model_id": "PS-S04D" }],
+      "notes": "24 distance bands of 0.25 m, rated 120° / 6 m."
+    },
+    {
+      "id": "aqara_fp1e",
+      "name": "Aqara FP1E",
+      "manufacturer": "Aqara",
+      "mode": "band",
+      "integrations": ["zigbee2mqtt"],
+      "eligible": true,
+      "notes": "Zigbee2MQTT exposes presence, movement, target_distance and detection_range."
+    },
+    {
+      "id": "aqara_fp310",
+      "name": "Aqara FP310",
+      "manufacturer": "Aqara",
+      "mode": "band",
+      "integrations": ["zigbee2mqtt"],
+      "eligible": true,
+      "notes": "Same distance and band controls as the FP300. China-market model; Zigbee2MQTT has an open bug where it stops responding."
+    },
+    {
+      "id": "aqara_fp1",
+      "name": "Aqara FP1",
+      "manufacturer": "Aqara",
+      "mode": "regions",
+      "integrations": ["zigbee2mqtt"],
+      "eligible": true,
+      "notes": "Up to 10 regions on a 4×7 grid. Discontinued."
+    },
+    {
+      "id": "aqara_p1",
+      "name": "Aqara P1 motion sensor",
+      "manufacturer": "Aqara",
+      "mode": "cone",
+      "integrations": ["zigbee2mqtt"],
+      "eligible": true,
+      "notes": "Occupancy, sensitivity and detection_interval (2–65535 s); about 170° / 7 m. Set detection_interval to its minimum during a test."
+    },
+    {
+      "id": "aqara_rtcgq13lm",
+      "name": "Aqara High Precision motion sensor (RTCGQ13LM)",
+      "manufacturer": "Aqara",
+      "mode": "cone",
+      "integrations": ["zigbee2mqtt"],
+      "eligible": true,
+      "notes": "About 60° / 5 m."
+    },
+    {
+      "id": "aqara_p2",
+      "name": "Aqara P2 motion sensor",
+      "manufacturer": "Aqara",
+      "mode": "cone",
+      "integrations": ["matter"],
+      "eligible": true,
+      "notes": "Thread/Matter device."
+    },
+    {
+      "id": "aqara_fp400",
+      "name": "Aqara FP400",
+      "manufacturer": "Aqara",
+      "mode": "map",
+      "integrations": ["zigbee2mqtt"],
+      "eligible": true,
+      "notes": "Live X/Y positions through add-on Zigbee2MQTT converters. Plain Matter reports a single occupancy only. Several FP400 map cards already exist; Blip's version may sit alongside them."
+    },
+    {
+      "id": "aqara_fp2",
+      "name": "Aqara FP2",
+      "manufacturer": "Aqara",
+      "mode": "map",
+      "integrations": ["matter"],
+      "eligible": false,
+      "reason": "Home Assistant gets no position data from it."
+    }
+  ],
+  "integration_work": [
+    {
+      "id": "zha",
+      "name": "ZHA support",
+      "notes": "HA 2026.11's built-in FP300 quirk exposes only presence, PIR and battery, with an open bug where they never update."
+    },
+    {
+      "id": "matter",
+      "name": "Thread/Matter support",
+      "notes": "Whether distance and bands are available over Matter isn't confirmed."
+    }
+  ],
+  "not_eligible_rule": "Anything that doesn't detect people."
+}

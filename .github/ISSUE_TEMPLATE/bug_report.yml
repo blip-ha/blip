@@ -1,0 +1,55 @@
+name: Bug report
+description: Something in Blip isn't working.
+title: "Bug: "
+labels: ["bug", "needs triage"]
+body:
+  - type: input
+    id: blip
+    attributes:
+      label: Blip version
+      description: Shown at the bottom of the Blip page, e.g. v0.2.0.
+    validations:
+      required: true
+  - type: input
+    id: ha
+    attributes:
+      label: Home Assistant version
+      description: Settings → About.
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install Blip?
+      options:
+        - Marketplace (HA 2026.11+)
+        - HACS
+        - Manual
+    validations:
+      required: true
+  - type: input
+    id: sensor
+    attributes:
+      label: Sensor and integration
+      placeholder: Aqara FP300 via Zigbee2MQTT
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Blip
+        2. Turn on Aim test
+        3. ...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Anything from Settings → System → Logs mentioning blip helps.

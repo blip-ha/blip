@@ -1,0 +1,14 @@
+{
+  "domain": "blip",
+  "name": "Blip",
+  "codeowners": ["@dbalaska32"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http", "panel_custom"],
+  "documentation": "https://github.com/blip-ha/blip",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/blip-ha/blip/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.3.0"
+}

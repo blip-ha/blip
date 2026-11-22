@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Blip panel preview</title>
+    <style>
+      html, body { margin: 0; background: #160b29; }
+      #dev { position: fixed; right: 8px; bottom: 8px; z-index: 9; display: flex; gap: 4px; flex-wrap: wrap; max-width: 300px; justify-content: flex-end; font: 12px system-ui; }
+      #dev button { background: #333; color: #fff; border: 1px solid #666; border-radius: 6px; padding: 4px 8px; }
+      body.shots #dev { display: none; }
+    </style>
+  </head>
+  <body>
+    <blip-panel></blip-panel>
+    <div id="dev">
+      <button data-a="walk">Walk</button><button data-a="still">Go quiet</button>
+      <button data-a="leave">Leave</button><button data-a="wake">Tap sensor</button>
+    </div>
+    <script type="module" src="./mock.ts"></script>
+  </body>
+</html>

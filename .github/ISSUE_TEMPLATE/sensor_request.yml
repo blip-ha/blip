@@ -1,0 +1,42 @@
+# Generated from catalog/sensors.json. Don't edit by hand: run `npm run catalog` in frontend/.
+name: Sensor request
+description: Ask for an approved sensor that Blip doesn't support yet.
+title: "Sensor request: "
+labels: ["sensor request", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Only sensors already approved for Blip are listed. Not in the list? Use **New sensor proposal** instead.
+  - type: dropdown
+    id: sensor
+    attributes:
+      label: Sensor
+      options:
+        - "Aqara FP1E (Band, Zigbee2MQTT)"
+        - "Aqara FP310 (Band, Zigbee2MQTT)"
+        - "Aqara FP1 (Regions, Zigbee2MQTT)"
+        - "Aqara P1 motion sensor (Cone, Zigbee2MQTT)"
+        - "Aqara High Precision motion sensor (RTCGQ13LM) (Cone, Zigbee2MQTT)"
+        - "Aqara P2 motion sensor (Cone, Thread/Matter)"
+        - "Aqara FP400 (Map, Zigbee2MQTT)"
+        - "ZHA support"
+        - "Thread/Matter support"
+    validations:
+      required: true
+  - type: dropdown
+    id: own
+    attributes:
+      label: Do you own this sensor?
+      description: Sensors are built by people who own them and can test on their own Home Assistant.
+      options:
+        - "Yes, and I can help test"
+        - "Yes, and I'd like to build it"
+        - "No, I'm interested"
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Anything else?
+      description: Your Home Assistant version, how the sensor is connected, what you'd use Blip for.

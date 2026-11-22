@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/blip-ha/blip/profiles/schema.json",
+  "title": "Blip sensor profile",
+  "description": "One file per sensor model. See profiles/README.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "manufacturer",
+    "integration",
+    "mode",
+    "match",
+    "entities",
+    "field_of_view",
+    "behavior"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "description": "Unique id, also the file name without .json.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+    },
+    "name": {
+      "description": "Shown to people, e.g. \"Aqara FP300\".",
+      "type": "string",
+      "minLength": 1
+    },
+    "manufacturer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "integration": {
+      "description": "How the sensor reaches Home Assistant.",
+      "enum": [
+        "zigbee2mqtt",
+        "zha",
+        "matter"
+      ]
+    },
+    "mode": {
+      "description": "band: distance bands. cone: whole cone lights on motion. map: multi-target positions. regions: zone grid.",
+      "enum": [
+        "band",
+        "cone",
+        "map",
+        "regions"
+      ]
+    },
+    "match": {
+      "description": "How Blip recognizes the device in Home Assistant's device registry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "devices"
+      ],
+      "properties": {
+        "devices": {
+          "description": "The device matches if every field of any one entry equals the device's (case-insensitive).",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "properties": {
+              "manufacturer": {
+                "type": "string",
+                "minLength": 1
+              },
+              "model": {
+                "type": "string",
+                "minLength": 1
+              },
+              "model_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "description": "Must name the model (model or model_id), so a profile can't claim every device of a manufacturer.",
+            "anyOf": [
+              {
+                "required": [
+                  "model"
+                ]
+              },
+              {
+                "required": [
+                  "model_id"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "entities": {
+      "description": "Which of the device's entities does which job. Keys are roles; the mode says which roles it needs.",
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/entityMatch"
+      },
+      "propertyNames": {
+        "enum": [
+          "range",
+          "presence",
+          "pir",
+          "distance",
+          "battery",
+          "track",
+          "motion",
+          "interval"
+        ]
+      }
+    },
+    "field_of_view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "angle_deg",
+        "range_m"
+      ],
+      "properties": {
+        "angle_deg": {
+          "description": "Rated horizontal angle.",
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 180
+        },
+        "range_m": {
+          "description": "Rated range in meters.",
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 20
+        }
+      }
+    },
+    "band": {
+      "description": "Band mode only.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "size_m",
+        "encoding"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "size_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "encoding": {
+          "description": "bitmask_nearest_first: the range entity is a number whose bit i switches band i on, band 0 nearest the sensor.",
+          "enum": [
+            "bitmask_nearest_first"
+          ]
+        }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sleepy"
+      ],
+      "properties": {
+        "sleepy": {
+          "description": "Battery device that queues commands until it wakes (tap its button to wake).",
+          "type": "boolean"
+        },
+        "track_rearm_min": {
+          "description": "Minutes between Track re-presses while aiming.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "lost_after_s": {
+          "description": "Seconds without a reading before Blip says it lost you.",
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "band"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "band"
+        ],
+        "properties": {
+          "entities": {
+            "required": [
+              "range",
+              "presence"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "entityMatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain",
+        "suffix"
+      ],
+      "properties": {
+        "domain": {
+          "enum": [
+            "binary_sensor",
+            "sensor",
+            "number",
+            "button",
+            "select",
+            "switch"
+          ]
+        },
+        "suffix": {
+          "description": "End of the entity id, e.g. _detection_range.",
+          "type": "string",
+          "pattern": "^_[a-z0-9_]+$"
+        },
+        "max": {
+          "description": "Required value of the entity's max attribute (numbers).",
+          "type": "number"
+        }
+      }
+    }
+  }
+}

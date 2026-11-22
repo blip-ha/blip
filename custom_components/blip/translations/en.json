@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Blip",
+        "description": "Adds a Blip page to your sidebar for aiming presence sensors. Nothing to configure."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Blip is already added. Open it from the sidebar."
+    }
+  }
+}
