@@ -15,6 +15,31 @@
   </tr>
 </table>
 
+## 🙋 Help wanted
+
+<p align="center"><a href="https://github.com/blip-ha/blip/blob/main/SENSORS.md#help-wanted"><img src="https://raw.githubusercontent.com/blip-ha/blip/main/brand/help-wanted-button.png" width="400" alt="Help wanted: own one of these sensors? Add it to Blip"></a></p>
+
+Blip only supports sensors someone has tested on real hardware. **Own one of these? You can add it.**
+
+<!-- help-wanted:start -->
+<!-- Generated from catalog/sensors.json. Don't edit by hand: run `npm run catalog` in frontend/. -->
+| Sensor | What it takes |
+|---|---|
+| Aqara FP1E | Profile file |
+| Aqara FP310 | Profile file |
+| Aqara FP1 | Issue first: new Regions mode |
+| Aqara P1 motion sensor | Issue first: new Cone mode |
+| Aqara High Precision motion sensor (RTCGQ13LM) | Issue first: new Cone mode |
+| Aqara P2 motion sensor | Issue first: new Cone mode, Thread/Matter |
+| Aqara FP400 | Issue first: new Map mode |
+<!-- help-wanted:end -->
+
+**Profile file** = one JSON file, no code. **Issue first** = open an issue with your approach and wait for a go-ahead.
+
+1. **Claim it:** [I'm building this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml) so nobody doubles up.
+2. **Build it:** follow [CONTRIBUTING.md](https://github.com/blip-ha/blip/blob/main/CONTRIBUTING.md) (a free GitHub account is all you need).
+3. **Don't own one but want it?** [Request it](https://github.com/blip-ha/blip/issues/new?template=sensor_request.yml).
+
 ## Supported sensors
 
 | Sensor | Mode | Status |

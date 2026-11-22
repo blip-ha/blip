@@ -57,7 +57,7 @@ From `frontend/`:
 | `npm test` | Unit tests (panel, discovery, drawing, catalog rules, profile checker) |
 | `npm run typecheck` | TypeScript checks |
 | `npm run build` | Build `custom_components/blip/frontend/blip-panel.js` and `profiles.json` |
-| `npm run catalog` | Regenerate SENSORS.md and the issue forms from the catalog |
+| `npm run catalog` | Regenerate SENSORS.md, the issue forms and the README's Help wanted list from the catalog |
 | `npm run catalog:check` | Schema, eligibility and safety checks (what CI runs) |
 | `npm run profile:check -- --states <export.json> ../profiles/<id>.json` | Does this profile find the sensor in a Home Assistant export? (See CONTRIBUTING for the export.) |
 
@@ -97,7 +97,7 @@ ZHA or Matter support follows the same path: issue first. Usually it means profi
 
 1. **Pull request.** CI runs on every pull request: types, unit tests, catalog checks, a build, integration tests and a real Home Assistant boot on 2025.1 and the latest release, hassfest and HACS validation. **Contributor guard** checks contributor pull requests: one profile file, plus the testing details in the description.
 2. **Review and merge.** `main` is protected: pull requests only, with the maintainer's review (CODEOWNERS). Only the maintainer merges.
-3. **Sync generated files.** After a merge, a workflow rebuilds SENSORS.md, the issue forms, `blip-panel.js` and `profiles.json`. If anything changed, it opens a **Sync generated files** pull request. **Don't commit generated files in a contributor pull request.**
+3. **Sync generated files.** After a merge, a workflow rebuilds SENSORS.md, the issue forms, the README's Help wanted list, `blip-panel.js` and `profiles.json`. If anything changed, it opens a **Sync generated files** pull request. **Don't commit generated files in a contributor pull request.**
 4. **Release.** Home Assistant users get changes only through a release (below).
 
 Dependabot opens grouped dependency updates every Monday, and CI also runs weekly against the newest Home Assistant.
