@@ -2,11 +2,14 @@
 
 All notable changes to Blip. Versions follow the integration's `manifest.json`.
 
-## Unreleased
+## 0.4.1 (2026-11-22)
+
+Docs and project housekeeping; the Blip page itself is unchanged.
 
 ### Docs
 - New developer guide, [docs/development.md](docs/development.md): code map, commands, testing on your own Home Assistant, adding a mode, how changes land, and releasing.
 - A **Help wanted** button near the top of the README with a one-line list of the sensors and integration work waiting for someone, generated from the catalog. The full table (what it takes, live status, sign-up) is in SENSORS.md.
+- README links work inside HACS and the Home Assistant Marketplace.
 - One-tap sign-up: every help-wanted sensor and piece of integration work (ZHA, Thread/Matter) in SENSORS.md has **🙋 I'll build this**, which opens the claim form already filled in, and a live **Status** badge: 🟢 open, or who's building it. The Claim status workflow keeps the badges current from open claim issues.
 
 ### Security
