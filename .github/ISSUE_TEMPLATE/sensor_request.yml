@@ -11,7 +11,7 @@ body:
   - type: dropdown
     id: sensor
     attributes:
-      label: Sensor
+      label: Sensor or work
       options:
         - "Aqara FP1E (Band, Zigbee2MQTT)"
         - "Aqara FP310 (Band, Zigbee2MQTT)"

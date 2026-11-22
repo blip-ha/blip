@@ -1,0 +1,68 @@
+name: Claim status
+
+# Keeps the README and SENSORS.md status badges current. When someone opens, closes or edits an
+# "I'm building this" issue, this writes one small status file per sensor or piece of
+# integration work to the `claims` branch, which the badges read. It never touches main, never
+# runs pull request code, and only ever replaces the `claims` branch.
+
+on:
+  issues:
+    types: [opened, edited, closed, reopened, deleted, labeled, unlabeled, transferred]
+  push:
+    branches: [main]
+    paths:
+      - catalog/**
+      - profiles/**
+      - frontend/scripts/catalog.ts
+      - frontend/scripts/claims.ts
+      - .github/workflows/claims.yml
+  schedule:
+    - cron: "43 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+
+concurrency:
+  group: claims
+  cancel-in-progress: false
+
+jobs:
+  status:
+    name: Update claim status
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Work out status
+        working-directory: frontend
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          npm ci
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/issues?state=open&labels=in%20progress&per_page=100" > "$RUNNER_TEMP/issues.json"
+          node scripts/claims.ts "$RUNNER_TEMP/issues.json" "$RUNNER_TEMP/claims"
+      - name: Publish to the claims branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/claims"
+          git init -q -b claims
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Claim status"
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch -q --depth=1 "$remote" claims 2>/dev/null && git diff --quiet FETCH_HEAD HEAD; then
+            echo "Claim status unchanged."
+          else
+            git push -q -f "$remote" HEAD:claims
+            echo "Claim status updated."
+          fi

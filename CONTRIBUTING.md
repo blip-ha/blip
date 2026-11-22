@@ -21,7 +21,7 @@ An automatic check called **Contributor guard** helps pull requests land smoothl
 
 ## Adding a sensor
 
-Check [SENSORS.md](SENSORS.md): **What it takes** says whether your sensor is a **profile file** (go ahead) or **issue first**. Then open an **I'm building this** issue so nobody doubles up.
+Check [SENSORS.md](SENSORS.md): **What it takes** says whether your sensor is a **profile file** (go ahead) or **issue first**. Check its **Status** badge: 🟢 **open** means it's yours to take. Tap **🙋 I'll build this** on its row; the form opens filled in, so tick the box and submit. The badge then shows your name, so nobody doubles up. Changed your mind? Close the issue and it goes back to open.
 
 1. **Write the profile.** Your sensor's catalog id is your file name. Copy `profiles/aqara_fp300.json` to `profiles/<id>.json` and fill it in; [profiles/README.md](profiles/README.md) explains every field. The `match` rules should name your model, not just its manufacturer.
 

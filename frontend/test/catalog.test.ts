@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { claimForm, claimsUrl, claimUrl, HELP_END, HELP_START, problems, readmeHelpWanted, requestForm, sensorsMd, updateReadme, whatItTakes, type Catalog, type ProfileLike } from "../scripts/catalog.ts";
+import { statuses, claimedOption } from "../scripts/claims.ts";
+import { badgeUrl, claimItems, claimForm, claimsUrl, claimUrl, HELP_END, modelItem, HELP_START, problems, readmeHelpWanted, requestForm, sensorsMd, updateReadme, whatItTakes, type Catalog, type ProfileLike } from "../scripts/catalog.ts";
 import catalogJson from "../../catalog/sensors.json";
 import fp300 from "../../profiles/aqara_fp300.json";
 
@@ -110,7 +111,7 @@ describe("One-tap claim links", () => {
   const byId = (id: string) => catalog.models.find((m) => m.id === id)!;
   it("pre-fills the claim form with the sensor exactly as the dropdown lists it", () => {
     const m = byId("aqara_fp1e");
-    const q = new URL(claimUrl(m)).searchParams;
+    const q = new URL(claimUrl(modelItem(m))).searchParams;
     expect(q.get("template")).toBe("sensor_claim.yml");
     expect(q.get("title")).toBe("Building: Aqara FP1E");
     expect(claimForm(catalog, new Set(["aqara_fp300"]))).toContain(JSON.stringify(q.get("sensor")));
@@ -118,15 +119,63 @@ describe("One-tap claim links", () => {
     expect(q.get("approach")).toBe("Add a profile file.");
   });
   it("leaves integration and approach for issue-first sensors to the claimer", () => {
-    const q = new URL(claimUrl(byId("aqara_p2"))).searchParams;
+    const q = new URL(claimUrl(modelItem(byId("aqara_p2")))).searchParams;
     expect(q.get("integration")).toBeNull();
     expect(q.get("approach")).toBeNull();
   });
-  it("finds open claims by title", () => {
-    expect(decodeURIComponent(claimsUrl(byId("aqara_fp1e")))).toContain('label:"in progress" in:title "Aqara FP1E"');
+  it("finds open claims by the form's answer", () => {
+    expect(decodeURIComponent(claimsUrl(modelItem(byId("aqara_fp1e"))))).toContain('label:"in progress" "Aqara FP1E (Profile file)" in:body');
   });
   it("every help-wanted row has a sign-up link", () => {
     const block = readmeHelpWanted(catalog, new Set(["aqara_fp300"]));
-    expect(block.match(/I'll build this/g)?.length).toBe(7);
+    expect(block.match(/I'll build this/g)?.length).toBe(9);
+  });
+});
+
+describe("Claim status", () => {
+  const items = claimItems(catalog, new Set(["aqara_fp300"]));
+  const fp1e = items.find((i) => i.id === "aqara_fp1e")!;
+  const body = (option: string) => `### Sensor or work\n\n${option}\n\n### How is your sensor connected?\n\nZigbee2MQTT\n`;
+  it("covers help-wanted sensors and integration work, with unique ids", () => {
+    expect(items.map((i) => i.id)).toEqual(expect.arrayContaining(["aqara_fp1e", "zha", "matter"]));
+    expect(items.some((i) => i.id === "aqara_fp300")).toBe(false);
+    expect(new Set(items.map((i) => i.id)).size).toBe(items.length);
+  });
+  it("integration work can be claimed: in the form, pre-filled with its integration", () => {
+    const zha = items.find((i) => i.id === "zha")!;
+    expect(claimForm(catalog, new Set(["aqara_fp300"]))).toContain(JSON.stringify("ZHA support (Issue first)"));
+    expect(new URL(claimUrl(zha)).searchParams.get("integration")).toBe("ZHA");
+    expect(new URL(claimUrl(items.find((i) => i.id === "matter")!)).searchParams.get("integration")).toBe("Thread/Matter");
+  });
+  it("open until someone claims it, then the first claimer", () => {
+    expect(statuses(items, []).aqara_fp1e).toMatchObject({ message: "open", color: "2ea043" });
+    const s = statuses(items, [
+      { number: 9, user: { login: "bob" }, body: body(fp1e.option) },
+      { number: 4, user: { login: "alice" }, body: body(fp1e.option) },
+      { number: 5, user: { login: "carol" }, body: body("ZHA support (Issue first)") },
+    ]);
+    expect(s.aqara_fp1e).toMatchObject({ message: "@alice +1", color: "c2410c" });
+    expect(s.zha.message).toBe("@carol");
+    expect(s.aqara_fp310.message).toBe("open");
+  });
+  it("ignores pull requests, unknown options and odd logins", () => {
+    const s = statuses(items, [
+      { number: 1, user: { login: "x" }, body: body(fp1e.option), pull_request: {} },
+      { number: 2, user: { login: "y" }, body: body("Aqara FP1E (anything)") },
+      { number: 3, user: { login: "evil](http://x)" }, body: body("Aqara FP310 (Profile file)") },
+    ]);
+    expect(s.aqara_fp1e.message).toBe("open");
+    expect(s.aqara_fp310.message).toBe("someone");
+  });
+  it("reads the dropdown answer from older claims too", () => {
+    expect(claimedOption("### Sensor\n\nAqara FP1E (Profile file)\n")).toBe("Aqara FP1E (Profile file)");
+    expect(claimedOption("no form here")).toBeNull();
+  });
+  it("every row has a live badge and a sign-up link, and no wrapping extras", () => {
+    const block = readmeHelpWanted(catalog, new Set(["aqara_fp300"]));
+    expect(block.match(/img\.shields\.io\/endpoint/g)?.length).toBe(items.length);
+    expect(block.match(/I'll build this/g)?.length).toBe(items.length);
+    expect(block).not.toContain("Who's on it");
+    expect(decodeURIComponent(badgeUrl(fp1e))).toContain("blip-ha/blip/claims/status/aqara_fp1e.json");
   });
 });
