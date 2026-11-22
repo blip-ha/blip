@@ -1,6 +1,6 @@
 // Catalog tool. Plain Node (type stripping), no build step.
 //
-//   node scripts/catalog.ts                    regenerate SENSORS.md, the issue forms and the README's Help wanted list
+//   node scripts/catalog.ts                    regenerate SENSORS.md, the issue forms and the README's Help wanted line
 //   node scripts/catalog.ts --check            CI: fail on any schema, eligibility or safety problem
 //   node scripts/catalog.ts --check-generated  also fail if the generated files are out of date
 //
@@ -202,13 +202,25 @@ const signUpCell = (item: ClaimItem) => `**[🙋 I'll build this](${claimUrl(ite
 export const HELP_START = "<!-- help-wanted:start -->";
 export const HELP_END = "<!-- help-wanted:end -->";
 
-/** The README's Help wanted list, regenerated between the markers above. */
+/** Short name for the README line: "Aqara High Precision motion sensor (RTCGQ13LM)" → "High Precision". */
+export function shortName(m: CatalogModel): string {
+  return m.name
+    .replace(new RegExp(`^${m.manufacturer}\\s+`, "i"), "")
+    .replace(/\s*\(.*\)\s*$/, "")
+    .replace(/\s+motion sensor$/i, "")
+    .trim();
+}
+
+/** The README's one-line Help wanted summary, regenerated between the markers above. The full table lives in SENSORS.md. */
 export function readmeHelpWanted(catalog: Catalog, profileIds: Set<string>): string {
+  const sensors = catalog.models.filter((m) => m.eligible && !profileIds.has(m.id)).map(shortName);
+  const work = catalog.integration_work.map((w) => w.name.replace(/\s+support$/i, ""));
+  const workText = work.length ? `${work.length > 1 ? `${work.slice(0, -1).join(", ")} and ${work.at(-1)}` : work[0]} support` : "";
+  const line = sensors.length
+    ? `${sensors.join(", ")}${workText ? `, plus ${workText}` : ""}.`
+    : workText ? `${workText}.` : "Nothing right now.";
   return `${HELP_START}
-<!-- Generated from catalog/sensors.json. Don't edit by hand: run \`npm run catalog\` in frontend/. -->
-| Sensor or work | What it takes | Status | Sign up |
-|---|---|---|---|
-${claimItems(catalog, profileIds).map((i) => `| ${i.name} | ${i.takes} | ${statusCell(i)} | ${signUpCell(i)} |`).join("\n")}
+<p align="center">${line}</p>
 ${HELP_END}`;
 }
 
