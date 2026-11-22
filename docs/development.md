@@ -37,7 +37,7 @@ Sensors are described by **profiles**: one JSON file per model in `profiles/`. T
 | `frontend/src/aim.ts` | Aim-test logic: which band you're in, "lost you" detection, the status pill text |
 | `frontend/src/brand.ts`, `styles.ts` | Wordmark, b mark and styles |
 | `frontend/preview/` | `npm run dev`: the real panel driven by a simulated Home Assistant |
-| `frontend/scripts/catalog.ts` | Eligibility and safety checks; generates SENSORS.md, the issue forms and the README's Help wanted list |
+| `frontend/scripts/catalog.ts` | Eligibility and safety checks; generates SENSORS.md, the issue forms and the README's Help wanted line |
 | `frontend/scripts/claims.ts` | Claim status: turns open **I'm building this** issues into the Status badges (run by the Claim status workflow) |
 | `frontend/scripts/profile-check.ts`, `ha-export.jinja` | The profile checker (does a profile find a real sensor?) |
 | `frontend/scripts/bundle-profiles.ts` | Writes `profiles.json` after the build |
@@ -58,7 +58,7 @@ From `frontend/`:
 | `npm test` | Unit tests (panel, discovery, drawing, catalog rules, profile checker) |
 | `npm run typecheck` | TypeScript checks |
 | `npm run build` | Build `custom_components/blip/frontend/blip-panel.js` and `profiles.json` |
-| `npm run catalog` | Regenerate SENSORS.md, the issue forms and the README's Help wanted list from the catalog |
+| `npm run catalog` | Regenerate SENSORS.md, the issue forms and the README's Help wanted line from the catalog |
 | `npm run catalog:check` | Schema, eligibility and safety checks (what CI runs) |
 | `npm run profile:check -- --states <export.json> ../profiles/<id>.json` | Does this profile find the sensor in a Home Assistant export? (See CONTRIBUTING for the export.) |
 
@@ -98,10 +98,10 @@ ZHA or Matter support follows the same path: issue first. Usually it means profi
 
 1. **Pull request.** CI runs on every pull request: types, unit tests, catalog checks, a build, integration tests and a real Home Assistant boot on 2025.1 and the latest release, hassfest and HACS validation. **Contributor guard** checks contributor pull requests: one profile file, plus the testing details in the description.
 2. **Review and merge.** `main` is protected: pull requests only, with the maintainer's review (CODEOWNERS). Only the maintainer merges.
-3. **Sync generated files.** After a merge, a workflow rebuilds SENSORS.md, the issue forms, the README's Help wanted list, `blip-panel.js` and `profiles.json`. If anything changed, it opens a **Sync generated files** pull request. **Don't commit generated files in a contributor pull request.**
+3. **Sync generated files.** After a merge, a workflow rebuilds SENSORS.md, the issue forms, the README's Help wanted line, `blip-panel.js` and `profiles.json`. If anything changed, it opens a **Sync generated files** pull request. **Don't commit generated files in a contributor pull request.**
 4. **Release.** Home Assistant users get changes only through a release (below).
 
-**Claim status** runs whenever a claim issue opens, closes or changes (and daily). It writes one badge file per sensor or piece of integration work to the `claims` branch, which only that workflow writes; the README and SENSORS.md badges read it. Don't commit to `claims` or protect it.
+**Claim status** runs whenever a claim issue opens, closes or changes (and daily). It writes one badge file per sensor or piece of integration work to the `claims` branch, which only that workflow writes; the SENSORS.md badges read it. Don't commit to `claims` or protect it.
 
 Dependabot opens grouped dependency updates every Monday, and CI also runs weekly against the newest Home Assistant.
 

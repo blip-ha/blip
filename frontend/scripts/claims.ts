@@ -4,7 +4,7 @@
 //
 // Reads the open "in progress" issues (GitHub REST JSON) and writes out-dir/status/<id>.json for
 // every help-wanted sensor and piece of integration work: a shields.io endpoint badge that says
-// "open" or who is building it. The README and SENSORS.md show these badges.
+// "open" or who is building it. SENSORS.md shows these badges.
 //
 // Issue text is untrusted. It is only compared with the claim form's known dropdown options, and
 // the only thing copied out of an issue is the author's GitHub login, checked against GitHub's

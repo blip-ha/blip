@@ -1,6 +1,6 @@
 name: Claim status
 
-# Keeps the README and SENSORS.md status badges current. When someone opens, closes or edits an
+# Keeps the SENSORS.md status badges current. When someone opens, closes or edits an
 # "I'm building this" issue, this writes one small status file per sensor or piece of
 # integration work to the `claims` branch, which the badges read. It never touches main, never
 # runs pull request code, and only ever replaces the `claims` branch.

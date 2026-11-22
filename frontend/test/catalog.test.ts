@@ -93,14 +93,19 @@ describe("generated files", () => {
   });
 });
 
-describe("README Help wanted list", () => {
-  it("lists only approved, unbuilt models and keeps the rest of the README", () => {
+describe("README Help wanted line", () => {
+  it("names the approved, unbuilt models and integration work on one line, and keeps the rest of the README", () => {
     const block = readmeHelpWanted(catalog, new Set(["aqara_fp300"]));
-    expect(block).toContain("| Aqara FP1E | Profile file |");
+    expect(block).toContain(">FP1E, FP310, FP1, P1, High Precision, P2, FP400, plus ZHA and Thread/Matter support.<");
+    expect(block).not.toContain("|");
+    expect(block).not.toContain("shields.io");
     expect(block).not.toContain("FP300");
     expect(block).not.toContain("FP2 ");
     const readme = `top\n${HELP_START}\nold\n${HELP_END}\nbottom`;
     expect(updateReadme(readme, block)).toBe(`top\n${block}\nbottom`);
+  });
+  it("drops a sensor from the line once its profile lands", () => {
+    expect(readmeHelpWanted(catalog, new Set(["aqara_fp300", "aqara_fp1e"]))).not.toContain("FP1E");
   });
   it("fails loudly if the markers are missing", () => {
     expect(() => updateReadme("no markers", "x")).toThrow(/markers/);
@@ -127,8 +132,8 @@ describe("One-tap claim links", () => {
     expect(decodeURIComponent(claimsUrl(modelItem(byId("aqara_fp1e"))))).toContain('label:"in progress" "Aqara FP1E (Profile file)" in:body');
   });
   it("every help-wanted row has a sign-up link", () => {
-    const block = readmeHelpWanted(catalog, new Set(["aqara_fp300"]));
-    expect(block.match(/I'll build this/g)?.length).toBe(9);
+    const md = sensorsMd(catalog, new Set(["aqara_fp300"]));
+    expect(md.match(/\[🙋 I'll build this\]\(/g)?.length).toBe(9);
   });
 });
 
@@ -171,10 +176,10 @@ describe("Claim status", () => {
     expect(claimedOption("### Sensor\n\nAqara FP1E (Profile file)\n")).toBe("Aqara FP1E (Profile file)");
     expect(claimedOption("no form here")).toBeNull();
   });
-  it("every row has a live badge and a sign-up link, and no wrapping extras", () => {
-    const block = readmeHelpWanted(catalog, new Set(["aqara_fp300"]));
+  it("every SENSORS.md row has a live badge and a sign-up link, and no wrapping extras", () => {
+    const block = sensorsMd(catalog, new Set(["aqara_fp300"]));
     expect(block.match(/img\.shields\.io\/endpoint/g)?.length).toBe(items.length);
-    expect(block.match(/I'll build this/g)?.length).toBe(items.length);
+    expect(block.match(/\[🙋 I'll build this\]\(/g)?.length).toBe(items.length);
     expect(block).not.toContain("Who's on it");
     expect(decodeURIComponent(badgeUrl(fp1e))).toContain("blip-ha/blip/claims/status/aqara_fp1e.json");
   });
