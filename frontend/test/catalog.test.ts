@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claimForm, HELP_END, HELP_START, problems, readmeHelpWanted, requestForm, sensorsMd, updateReadme, whatItTakes, type Catalog, type ProfileLike } from "../scripts/catalog.ts";
+import { claimForm, claimsUrl, claimUrl, HELP_END, HELP_START, problems, readmeHelpWanted, requestForm, sensorsMd, updateReadme, whatItTakes, type Catalog, type ProfileLike } from "../scripts/catalog.ts";
 import catalogJson from "../../catalog/sensors.json";
 import fp300 from "../../profiles/aqara_fp300.json";
 
@@ -103,5 +103,30 @@ describe("README Help wanted list", () => {
   });
   it("fails loudly if the markers are missing", () => {
     expect(() => updateReadme("no markers", "x")).toThrow(/markers/);
+  });
+});
+
+describe("One-tap claim links", () => {
+  const byId = (id: string) => catalog.models.find((m) => m.id === id)!;
+  it("pre-fills the claim form with the sensor exactly as the dropdown lists it", () => {
+    const m = byId("aqara_fp1e");
+    const q = new URL(claimUrl(m)).searchParams;
+    expect(q.get("template")).toBe("sensor_claim.yml");
+    expect(q.get("title")).toBe("Building: Aqara FP1E");
+    expect(claimForm(catalog, new Set(["aqara_fp300"]))).toContain(JSON.stringify(q.get("sensor")));
+    expect(q.get("integration")).toBe("Zigbee2MQTT");
+    expect(q.get("approach")).toBe("Add a profile file.");
+  });
+  it("leaves integration and approach for issue-first sensors to the claimer", () => {
+    const q = new URL(claimUrl(byId("aqara_p2"))).searchParams;
+    expect(q.get("integration")).toBeNull();
+    expect(q.get("approach")).toBeNull();
+  });
+  it("finds open claims by title", () => {
+    expect(decodeURIComponent(claimsUrl(byId("aqara_fp1e")))).toContain('label:"in progress" in:title "Aqara FP1E"');
+  });
+  it("every help-wanted row has a sign-up link", () => {
+    const block = readmeHelpWanted(catalog, new Set(["aqara_fp300"]));
+    expect(block.match(/I'll build this/g)?.length).toBe(7);
   });
 });

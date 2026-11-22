@@ -100,7 +100,7 @@ export function whatItTakes(m: CatalogModel): string {
 }
 
 const wantedLine = (m: CatalogModel) =>
-  `| ${m.name} | ${MODE_NAMES[m.mode]} | ${m.integrations.map((i) => INTEGRATION_NAMES[i]).join(", ")} | **${whatItTakes(m)}** | ${m.notes ?? ""} |`;
+  `| ${m.name} | ${MODE_NAMES[m.mode]} | ${m.integrations.map((i) => INTEGRATION_NAMES[i]).join(", ")} | **${whatItTakes(m)}** | **[🙋 I'll build this](${claimUrl(m)})** · [Who's on it?](${claimsUrl(m)}) | ${m.notes ?? ""} |`;
 
 export function sensorsMd(catalog: Catalog, profileIds: Set<string>): string {
   const supported = catalog.models.filter((m) => m.eligible && profileIds.has(m.id));
@@ -120,12 +120,12 @@ ${supported.map(modelLine).join("\n")}
 
 ## Help wanted
 
-Approved for Blip but not built yet. Own one of these? See [CONTRIBUTING.md](CONTRIBUTING.md), then open an **I'm building this** issue so nobody doubles up. Want one? Open a **Sensor request** issue.
+Approved for Blip but not built yet. Own one of these? See [CONTRIBUTING.md](CONTRIBUTING.md), then tap **🙋 I'll build this** on its row so nobody doubles up (check **Who's on it?** first). Want one? Open a **Sensor request** issue.
 
 **What it takes:** **Profile file** means one JSON file and no code. **Issue first** means it needs a mode Blip can't draw yet, or ZHA/Matter support: open an issue with your approach and wait for approval before writing code.
 
-| Sensor | Mode | Integration | What it takes | Notes |
-|---|---|---|---|---|
+| Sensor | Mode | Integration | What it takes | Sign up | Notes |
+|---|---|---|---|---|---|
 ${wanted.map(wantedLine).join("\n")}
 
 ### Integration work
@@ -145,6 +145,24 @@ Something else that detects people? Open a **New sensor proposal** issue.
 `;
 }
 
+const REPO = "https://github.com/blip-ha/blip";
+
+/** The claim form, pre-filled for one sensor: sensor, title, and for a profile-file sensor the integration and approach too. */
+export function claimUrl(m: CatalogModel): string {
+  const q = new URLSearchParams({ template: "sensor_claim.yml", title: `Building: ${m.name}`, sensor: `${m.name} (${whatItTakes(m)})` });
+  if (whatItTakes(m) === "Profile file") {
+    q.set("integration", "Zigbee2MQTT");
+    q.set("approach", "Add a profile file.");
+  }
+  return `${REPO}/issues/new?${q.toString().replace(/\+/g, "%20")}`;
+}
+
+/** Open claims for one sensor (claim issues are titled "Building: <name>"). */
+export function claimsUrl(m: CatalogModel): string {
+  const q = new URLSearchParams({ q: `is:issue is:open label:"in progress" in:title "${m.name}"` });
+  return `${REPO}/issues?${q.toString().replace(/\+/g, "%20")}`;
+}
+
 export const HELP_START = "<!-- help-wanted:start -->";
 export const HELP_END = "<!-- help-wanted:end -->";
 
@@ -153,9 +171,9 @@ export function readmeHelpWanted(catalog: Catalog, profileIds: Set<string>): str
   const wanted = catalog.models.filter((m) => m.eligible && !profileIds.has(m.id));
   return `${HELP_START}
 <!-- Generated from catalog/sensors.json. Don't edit by hand: run \`npm run catalog\` in frontend/. -->
-| Sensor | What it takes |
-|---|---|
-${wanted.map((m) => `| ${m.name} | ${whatItTakes(m)} |`).join("\n")}
+| Sensor | What it takes | Sign up |
+|---|---|---|
+${wanted.map((m) => `| ${m.name} | ${whatItTakes(m)} | **[🙋 I'll build this](${claimUrl(m)})** · [Who's on it?](${claimsUrl(m)}) |`).join("\n")}
 ${HELP_END}`;
 }
 
