@@ -1,0 +1,21 @@
+{#- Blip sensor export: paste this into Home Assistant → Developer Tools → Template.
+    Set `match` below to part of your sensor's device name, model or entity ids.
+    Copy the whole result into a file (e.g. my-sensor.json) and run:
+      npm run profile:check -- --states my-sensor.json profiles/<id>.json
+    The file lists only the matching devices' entities. It includes their names,
+    so keep it on your computer; don't post it publicly. -#}
+{%- set match = "fp300" | lower -%}
+{%- set ns = namespace(rows=[]) -%}
+{%- for s in states -%}
+  {%- set d = device_id(s.entity_id) -%}
+  {%- if d -%}
+    {%- set dev = {"manufacturer": device_attr(d, "manufacturer"), "model": device_attr(d, "model"), "model_id": device_attr(d, "model_id"), "name": device_attr(d, "name"), "name_by_user": device_attr(d, "name_by_user")} -%}
+  {%- else -%}
+    {%- set dev = {} -%}
+  {%- endif -%}
+  {%- set hay = (s.entity_id ~ " " ~ (dev.values() | select | join(" "))) | lower -%}
+  {%- if match in hay -%}
+    {%- set ns.rows = ns.rows + [{"entity_id": s.entity_id, "state": s.state, "attributes": {"max": s.attributes.get("max"), "friendly_name": s.attributes.get("friendly_name")}, "device_id": d, "device": dev}] -%}
+  {%- endif -%}
+{%- endfor -%}
+{{ {"blip_export": 1, "entities": ns.rows} | tojson }}

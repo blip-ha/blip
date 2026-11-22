@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { discover } from "../src/discovery";
+import { discover as discoverWith } from "../src/discovery";
 import { PROFILES, type Profile } from "../src/profile";
+
+const discover = (hass: Parameters<typeof discoverWith>[0], profiles: Profile[] = PROFILES) => discoverWith(hass, profiles);
 import type { HassEntity } from "../src/hass";
 
 const e = (entity_id: string, state = "on", attributes: Record<string, unknown> = {}): HassEntity => ({

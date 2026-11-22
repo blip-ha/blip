@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { problems, requestForm, sensorsMd, type Catalog, type ProfileLike } from "../scripts/catalog.ts";
+import { claimForm, problems, requestForm, sensorsMd, whatItTakes, type Catalog, type ProfileLike } from "../scripts/catalog.ts";
 import catalogJson from "../../catalog/sensors.json";
 import fp300 from "../../profiles/aqara_fp300.json";
-import sensorsFile from "../../SENSORS.md?raw";
-import formFile from "../../.github/ISSUE_TEMPLATE/sensor_request.yml?raw";
 
 const catalog = catalogJson as Catalog;
 const ok = { "aqara_fp300.json": fp300 as ProfileLike };
@@ -71,10 +69,21 @@ const allProfiles = import.meta.glob<{ id: string }>(["../../profiles/*.json", "
   import: "default",
 });
 
-describe("generated files are in sync with the catalog", () => {
-  const ids = new Set(Object.values(allProfiles).map((p) => p.id));
-  it("SENSORS.md", () => expect(sensorsFile).toBe(sensorsMd(catalog, ids)));
-  it("sensor request form", () => expect(formFile).toBe(requestForm(catalog, ids)));
+describe("generated files", () => {
+  // Contributors don't commit generated files (they're rebuilt after merge), so these tests check
+  // the generators, not the committed copies; sync-generated.yml keeps the copies on main current.
+  it("SENSORS.md and the issue forms generate for the current profiles", () => {
+    const ids = new Set(Object.values(allProfiles).map((p) => p.id));
+    expect(sensorsMd(catalog, ids)).toContain("## Supported");
+    expect(requestForm(catalog, ids)).toContain("name: Sensor request");
+    expect(claimForm(catalog, ids)).toContain("name: I'm building this");
+  });
+  it("what it takes follows the rule: Z2M + a built mode = profile file, otherwise issue first", () => {
+    const byId = Object.fromEntries(catalog.models.map((m) => [m.id, whatItTakes(m)]));
+    expect(byId.aqara_fp1e).toBe("Profile file");
+    expect(byId.aqara_fp1).toBe("Issue first: new Regions mode");
+    expect(byId.aqara_p2).toBe("Issue first: new Cone mode, Thread/Matter");
+  });
   it("a new profile moves its model from Help wanted to Supported", () => {
     const md = sensorsMd(catalog, new Set(["aqara_fp300", "aqara_fp1e"]));
     const supported = md.split("## Help wanted")[0];

@@ -11,6 +11,22 @@ declare const __BLIP_VERSION__: string;
 
 const SENSOR_KEY = "blip.sensor";
 const INTEGRATIONS = { zigbee2mqtt: "Zigbee2MQTT", zha: "ZHA", matter: "Matter" } as const;
+const ISSUES = "https://github.com/blip-ha/blip/issues/new";
+
+/**
+ * "Report a problem": opens the bug report form pre-filled with versions and the sensor's model.
+ * Deliberately no device names, entity ids or Home Assistant addresses.
+ */
+export function reportUrl(blipVersion: string, haVersion: string | undefined, sensor?: Sensor, model?: string | null): string {
+  const q = new URLSearchParams({ template: "bug_report.yml", blip: `v${blipVersion}` });
+  if (haVersion) q.set("ha", haVersion);
+  if (sensor) {
+    const name = sensor.profile.name;
+    const what = model && !name.toLowerCase().includes(model.toLowerCase()) ? `${name} (${model})` : name;
+    q.set("sensor", `${what} via ${INTEGRATIONS[sensor.profile.integration]}`);
+  }
+  return `${ISSUES}?${q}`;
+}
 const store = {
   get: (k: string) => {
     try {
@@ -108,7 +124,7 @@ export class BlipPanel extends LitElement {
     if (this.registries?.[0] === hass.entities && this.registries?.[1] === hass.devices && key === this.sensorsKey) return;
     this.registries = [hass.entities, hass.devices];
     this.sensorsKey = key;
-    this.sensors = discover(hass);
+    this.sensors = discover(hass, PROFILES);
     if (!this.sensors.some((s) => s.key === this.selected)) {
       const saved = store.get(SENSOR_KEY);
       this.selected = this.sensors.find((s) => s.key === saved)?.key ?? this.sensors[0]?.key ?? "";
@@ -227,8 +243,11 @@ export class BlipPanel extends LitElement {
   }
 
   private renderFooter() {
+    const s = this.current();
+    const model = s ? this.hass?.devices?.[s.key]?.model : undefined;
     return html`<div class="footmark">${mark(44, "blip")}</div>
-      <p class="ver">v${__BLIP_VERSION__}</p>`;
+      <p class="ver">v${__BLIP_VERSION__}</p>
+      <p class="report"><a href=${reportUrl(__BLIP_VERSION__, this.hass?.config?.version, s, model)} target="_blank" rel="noopener noreferrer">Report a problem</a></p>`;
   }
 
   render() {

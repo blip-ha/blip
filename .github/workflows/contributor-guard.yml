@@ -1,66 +1,54 @@
 name: Contributor guard
 
-# Keeps the Blip app safe: a pull request from anyone but the maintainer may only ADD a sensor
-# profile (data, not code), plus the files CI regenerates from it and verifies byte for byte.
-# Anything else needs the maintainer to review it and add the `maintainer-approved` label.
+# Helps sensor contributions land smoothly and keeps the app stable. For pull requests from
+# anyone but the maintainer, it checks:
+#   1. Files: a sensor contribution adds one new profile (data, not code). Generated files are
+#      rebuilt after merge (sync-generated.yml). Other changes start with an approved issue and
+#      get the maintainer-approved label.
+#   2. Testing details in the pull request text: Home Assistant version, integration
+#      (Zigbee2MQTT/ZHA/Matter) and a walk-test screen recording.
 #
-# Why pull_request_target: this workflow always runs from the base branch, so a pull request
-# can't edit or switch off the guard. It never checks out or runs the pull request's code; it
-# only reads the list of changed file names from the GitHub API.
+# Why pull_request_target: this workflow and its script always come from the base branch, so a
+# pull request can't edit or switch off the guard. It never checks out or runs the pull
+# request's code: it reads the changed file names from the GitHub API and the PR text from
+# the event. The rules live in .github/scripts/contributor-guard.sh and are self-tested in CI.
 
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, edited, labeled, unlabeled]
 
 permissions:
+  contents: read
   pull-requests: read
 
 jobs:
   guard:
     name: Contributor guard
     runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != 'dbalaska32'
     steps:
+      - name: Check out the guard (base branch, not the pull request)
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
       - name: Check which files this pull request changes
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'maintainer-approved') }}
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
-          AUTHOR: ${{ github.event.pull_request.user.login }}
-          APPROVED: ${{ contains(github.event.pull_request.labels.*.name, 'maintainer-approved') }}
-          MAINTAINER: dbalaska32
         run: |
-          set -euo pipefail
-          if [ "$AUTHOR" = "$MAINTAINER" ]; then
-            echo "Opened by the maintainer."
-            exit 0
-          fi
-          if [ "$APPROVED" = "true" ]; then
-            echo "The maintainer reviewed this pull request (maintainer-approved label)."
-            exit 0
-          fi
-
-          gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | [.status, .filename] | @tsv' > files.tsv
-          blocked=0
-          while IFS=$'\t' read -r status file; do
-            allowed=no
-            if [[ "$file" =~ ^profiles/[a-z0-9]+(_[a-z0-9]+)*\.json$ && "$file" != "profiles/schema.json" && "$status" == "added" ]]; then
-              allowed=yes   # a new sensor profile
-            elif [[ "$status" == "modified" && ( "$file" == "SENSORS.md" \
-                  || "$file" == ".github/ISSUE_TEMPLATE/sensor_request.yml" \
-                  || "$file" == "custom_components/blip/frontend/blip-panel.js" ) ]]; then
-              allowed=yes   # regenerated from the profile; CI checks it matches exactly
-            fi
-            if [ "$allowed" = yes ]; then
-              echo "  ok       $status  $file"
-            else
-              echo "  BLOCKED  $status  $file"
-              blocked=1
-            fi
-          done < files.tsv
-
-          if [ "$blocked" = 1 ]; then
-            echo
-            echo "::error::This pull request changes files that only the maintainer can change. Contributors can add a new file in profiles/ (plus the regenerated SENSORS.md, sensor request form and panel bundle). See CONTRIBUTING.md. If the change is needed, the maintainer reviews it and adds the maintainer-approved label."
+          gh api --paginate "repos/$REPO/pulls/$PR/files" --jq '.[] | [.status, .filename] | @tsv' > changes.tsv
+          bash .github/scripts/contributor-guard.sh files < changes.tsv || {
+            echo "::error::Sensor contributions add one file in profiles/; see the list above and CONTRIBUTING.md. Questions are welcome in the pull request."
             exit 1
-          fi
-          echo "Only allowed files changed."
+          }
+      - name: Check the testing details in the pull request text
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          bash .github/scripts/contributor-guard.sh body || {
+            echo "::error::Almost there: add the testing details listed above to the pull request text. This check re-runs when you edit it."
+            exit 1
+          }

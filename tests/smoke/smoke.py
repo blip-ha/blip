@@ -104,9 +104,18 @@ async def run(session: aiohttp.ClientSession) -> None:
         if r.status != 200 or 'customElements.define("blip-panel"' not in body:
             fail(f"panel JS not served correctly ({r.status})")
 
+    # "Download diagnostics" on Blip's integration page.
+    entry_id = done["result"]["entry_id"]
+    async with session.get(f"{BASE}/api/diagnostics/config_entry/{entry_id}", headers=auth) as r:
+        if r.status != 200:
+            fail(f"diagnostics download failed ({r.status})")
+        diag = (await r.json())["data"]
+        if not diag.get("blip_version") or diag.get("profiles_bundled") != ["aqara_fp300"]:
+            fail(f"unexpected diagnostics: {diag}")
+
     async with session.get(f"{BASE}/api/config", headers=auth) as r:
         version = (await r.json())["version"]
-    print(f"PASS: Blip panel registered and served on Home Assistant {version}")
+    print(f"PASS: Blip panel registered and served, diagnostics downloadable, on Home Assistant {version}")
 
 
 async def main() -> None:

@@ -34,15 +34,13 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
-      - name: Catalog, eligibility and safety checks; SENSORS.md and request form up to date
+      - name: Catalog, eligibility and safety checks
         run: npm run catalog:check
-      - run: npm run build
-      - name: Committed bundle matches the source
+      - name: Generated files and the panel bundle build
+        # Contributors don't commit these; sync-generated.yml rebuilds them on main after merge.
         run: |
-          git diff --exit-code -- ../custom_components/blip/frontend || {
-            echo "::error::custom_components/blip/frontend/blip-panel.js is out of date. Run 'npm run build' in frontend/ and commit it."
-            exit 1
-          }
+          npm run catalog
+          npm run build
 
   pytest:
     name: Tests on HA ${{ matrix.label }}
@@ -102,6 +100,13 @@ jobs:
           pip install ${{ matrix.packages }}
           pip install "$(python tests/frontend_requirement.py)"
       - run: python tests/smoke/smoke.py
+
+  guard-selftest:
+    name: Contributor guard self-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: bash .github/scripts/test-contributor-guard.sh
 
   hassfest:
     name: hassfest

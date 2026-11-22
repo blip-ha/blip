@@ -1,0 +1,181 @@
+{
+ "blip_export": 1,
+ "entities": [
+  {
+   "entity_id": "binary_sensor.office_presence_presence",
+   "state": "on",
+   "attributes": {
+    "max": null,
+    "friendly_name": "Office Presence Occupancy"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "binary_sensor.office_presence_pir_detection",
+   "state": "on",
+   "attributes": {
+    "max": null,
+    "friendly_name": "Office Presence Pir detection"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "button.office_presence_identify",
+   "state": "unknown",
+   "attributes": {
+    "max": null,
+    "friendly_name": "Office Presence Identify"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "button.office_presence_track_target_distance",
+   "state": "unknown",
+   "attributes": {
+    "max": null,
+    "friendly_name": "Office Presence Track target distance"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "number.office_presence_absence_delay_timer",
+   "state": "3",
+   "attributes": {
+    "max": 300.0,
+    "friendly_name": "Office Presence Absence delay timer"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "number.office_presence_detection_range",
+   "state": "16777215",
+   "attributes": {
+    "max": 16777215.0,
+    "friendly_name": "Office Presence Detection range"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "select.office_presence_motion_sensitivity",
+   "state": "high",
+   "attributes": {
+    "max": null,
+    "friendly_name": "Office Presence Motion sensitivity"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "sensor.office_presence_battery",
+   "state": "100",
+   "attributes": {
+    "max": null,
+    "friendly_name": "Office Presence Battery"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "sensor.office_presence_target_distance",
+   "state": "0",
+   "attributes": {
+    "max": null,
+    "friendly_name": "Office Presence Target distance"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "sensor.office_presence_detection_range_composite",
+   "state": "{'detection_range_0': True}",
+   "attributes": {
+    "max": null,
+    "friendly_name": "Office Presence Detection range composite"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  },
+  {
+   "entity_id": "text.office_presence_schedule_start_time",
+   "state": "21:00",
+   "attributes": {
+    "max": 255,
+    "friendly_name": "Office Presence Schedule start time"
+   },
+   "device_id": "0f30a0e5d1c2b3a4f5e6d7c8b9a01234",
+   "device": {
+    "manufacturer": "Aqara",
+    "model": "Presence sensor FP300",
+    "model_id": "PS-S04D",
+    "name": "Office Presence",
+    "name_by_user": null
+   }
+  }
+ ]
+}

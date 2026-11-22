@@ -3,6 +3,12 @@ description: Something in Blip isn't working.
 title: "Bug: "
 labels: ["bug", "needs triage"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Two things make problems much faster to fix:
+        - **Open this form from Blip:** the **Report a problem** link at the bottom of the Blip page fills in your Blip version, Home Assistant version and sensor model for you.
+        - **Attach diagnostics:** Settings → Devices & services → **Blip** → ⋮ → **Download diagnostics**, then drag the file into the box below. It lists versions, your sensors' models and the state of the entities Blip uses, with device names, areas and addresses left out.
   - type: input
     id: blip
     attributes:
@@ -48,6 +54,11 @@ body:
         1. Open Blip
         2. Turn on Aim test
         3. ...
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Drag the file from Settings → Devices & services → Blip → ⋮ → Download diagnostics here.
   - type: textarea
     id: logs
     attributes:

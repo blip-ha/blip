@@ -30,6 +30,9 @@ export const styles = [unsafeCSS(brandStyles), css`
 
     .title { font-size: 44px; margin: 0; }
     .ver { text-align: center; font-size: 11px; color: var(--muted); opacity: 0.7; margin-top: 8px; }
+    .report { text-align: center; font-size: 12px; margin-top: 6px; }
+    .report a { color: var(--soft); text-decoration: underline; text-underline-offset: 2px; }
+    .report a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
     .pill-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 8px; flex-wrap: nowrap; }
     .pill-row .pill { white-space: nowrap; padding: 7px 14px; }
     .pill-row .pill { margin: 0; }

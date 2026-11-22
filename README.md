@@ -64,7 +64,7 @@ The button opens Blip in HACS on your own Home Assistant. Or add it by hand:
 
 ### Manual (any version)
 
-1. Download this repository (green **Code** button → **Download ZIP**) and unzip it.
+1. Download the [latest release](https://github.com/blip-ha/blip/releases/latest) (**Source code (zip)** under Assets) and unzip it.
 2. Copy the `custom_components/blip` folder into your Home Assistant `config/custom_components/` folder, so you end up with `config/custom_components/blip/manifest.json`. The Samba or File editor add-on works for this.
 3. Restart Home Assistant.
 4. Go to **Settings → Devices & services → Add integration**, search **Blip**, and tap **Submit**.
@@ -109,11 +109,15 @@ pytest
 python tests/smoke/smoke.py   # boots a real Home Assistant and adds Blip
 ```
 
-CI runs all of this on every push, on the oldest supported Home Assistant (2025.1) and the latest, plus hassfest and HACS validation.
+CI runs all of this on every pull request and weekly, on the oldest supported Home Assistant (2025.1) and the latest, plus hassfest and HACS validation. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
 
 ## Contributing
 
 Own a sensor from the **Help wanted** list? You can add it with one data file. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Credits
+
+Built with Claude; reviewed and tested on real hardware by the maintainer.
 
 ## License
 

@@ -1,5 +1,7 @@
-import type { HassEntity, HomeAssistant } from "./hass";
-import { MODES, PROFILES, type DeviceMatch, type EntityMatch, type Profile, type Role } from "./profile";
+// No build-tool features here: the profile checker (plain Node) runs this same code.
+import type { HassEntity, HomeAssistant } from "./hass.ts";
+import { MODES } from "./modes.ts";
+import type { DeviceMatch, EntityMatch, Profile, Role } from "./profile.ts";
 
 /** A sensor Blip found, the profile it matched, and its entity for each role. */
 export interface Sensor {
@@ -41,7 +43,9 @@ function resolve(profile: Profile, ids: string[], states: Hass["states"], prefix
  * 2. Otherwise, devices (or entity-id prefixes, without a registry) whose entities match a
  *    profile's required roles, including the range entity's `max`.
  */
-export function discover(hass: Hass, profiles: Profile[] = PROFILES): Sensor[] {
+export function discover(hass: Hass, allProfiles: Profile[]): Sensor[] {
+  // Only profiles whose mode this version can draw; never crash on one that isn't.
+  const profiles = allProfiles.filter((p) => !!MODES[p.mode]);
   const { states } = hass;
   const entities = hass.entities ?? {};
   const devices = hass.devices ?? {};

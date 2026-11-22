@@ -12,17 +12,19 @@
 
 ## Help wanted
 
-Approved for Blip but not built yet. Own one of these? See [CONTRIBUTING.md](CONTRIBUTING.md). Want one? Open a **Sensor request** issue.
+Approved for Blip but not built yet. Own one of these? See [CONTRIBUTING.md](CONTRIBUTING.md), then open an **I'm building this** issue so nobody doubles up. Want one? Open a **Sensor request** issue.
 
-| Sensor | Mode | Integration | Notes |
-|---|---|---|---|
-| Aqara FP1E | Band | Zigbee2MQTT | Zigbee2MQTT exposes presence, movement, target_distance and detection_range. |
-| Aqara FP310 | Band | Zigbee2MQTT | Same distance and band controls as the FP300. China-market model; Zigbee2MQTT has an open bug where it stops responding. |
-| Aqara FP1 | Regions | Zigbee2MQTT | Up to 10 regions on a 4×7 grid. Discontinued. |
-| Aqara P1 motion sensor | Cone | Zigbee2MQTT | Occupancy, sensitivity and detection_interval (2–65535 s); about 170° / 7 m. Set detection_interval to its minimum during a test. |
-| Aqara High Precision motion sensor (RTCGQ13LM) | Cone | Zigbee2MQTT | About 60° / 5 m. |
-| Aqara P2 motion sensor | Cone | Thread/Matter | Thread/Matter device. |
-| Aqara FP400 | Map | Zigbee2MQTT | Live X/Y positions through add-on Zigbee2MQTT converters. Plain Matter reports a single occupancy only. Several FP400 map cards already exist; Blip's version may sit alongside them. |
+**What it takes:** **Profile file** means one JSON file and no code. **Issue first** means it needs a mode Blip can't draw yet, or ZHA/Matter support: open an issue with your approach and wait for approval before writing code.
+
+| Sensor | Mode | Integration | What it takes | Notes |
+|---|---|---|---|---|
+| Aqara FP1E | Band | Zigbee2MQTT | **Profile file** | Zigbee2MQTT exposes presence, movement, target_distance and detection_range. |
+| Aqara FP310 | Band | Zigbee2MQTT | **Profile file** | Same distance and band controls as the FP300. China-market model; Zigbee2MQTT has an open bug where it stops responding. |
+| Aqara FP1 | Regions | Zigbee2MQTT | **Issue first: new Regions mode** | Up to 10 regions on a 4×7 grid. Discontinued. |
+| Aqara P1 motion sensor | Cone | Zigbee2MQTT | **Issue first: new Cone mode** | Occupancy, sensitivity and detection_interval (2–65535 s); about 170° / 7 m. Set detection_interval to its minimum during a test. |
+| Aqara High Precision motion sensor (RTCGQ13LM) | Cone | Zigbee2MQTT | **Issue first: new Cone mode** | About 60° / 5 m. |
+| Aqara P2 motion sensor | Cone | Thread/Matter | **Issue first: new Cone mode, Thread/Matter** | Thread/Matter device. |
+| Aqara FP400 | Map | Zigbee2MQTT | **Issue first: new Map mode** | Live X/Y positions through add-on Zigbee2MQTT converters. Plain Matter reports a single occupancy only. Several FP400 map cards already exist; Blip's version may sit alongside them. |
 
 ### Integration work
 
