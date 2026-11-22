@@ -4,6 +4,9 @@ All notable changes to Blip. Versions follow the integration's `manifest.json`.
 
 ## Unreleased
 
+### Docs
+- New developer guide, [docs/development.md](docs/development.md): code map, commands, testing on your own Home Assistant, adding a mode, how changes land, and releasing.
+
 ### Security
 - Dependabot checks npm packages and GitHub Actions weekly, one grouped pull request per ecosystem.
 - The HACS and hassfest validation actions are pinned to exact commits.
