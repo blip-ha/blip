@@ -38,6 +38,10 @@ Requires **Home Assistant 2025.1 or newer**. Pick the path that matches your Hom
 
 ### HACS (HA 2025.1 to 2026.10)
 
+[![Open your Home Assistant instance and open Blip in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=blip-ha&repository=blip&category=integration)
+
+The button opens Blip in HACS on your own Home Assistant. Or add it by hand:
+
 1. Open **HACS**.
 2. Open the **⋮** menu (top right), then **Custom repositories**.
 3. **Repository:** `https://github.com/blip-ha/blip` · **Type:** Integration · tap **Add**.
