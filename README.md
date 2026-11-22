@@ -94,7 +94,7 @@ While the test is on, Blip re-sends the tracking request every 10 minutes, right
 
 ## Development
 
-Blip is a small Home Assistant integration (`custom_components/blip/`) plus a sidebar panel written in TypeScript and Lit (`frontend/`). Each supported sensor model is one JSON file in [`profiles/`](profiles/README.md).
+Blip is a small Home Assistant integration (`custom_components/blip/`) plus a sidebar panel written in TypeScript and Lit (`frontend/`). Each supported sensor model is one JSON file in [`profiles/`](https://github.com/blip-ha/blip/blob/main/profiles/README.md).
 
 ```bash
 cd frontend
@@ -103,7 +103,7 @@ npm run dev     # preview with a simulated FP300 (no Home Assistant needed)
 npm test
 ```
 
-**[docs/development.md](docs/development.md)** covers the rest: the code map, every command, testing on your own Home Assistant, adding a new mode, how changes land, and releasing. CI runs everything on each pull request and weekly, on Home Assistant 2025.1 and the latest. See [CHANGELOG.md](CHANGELOG.md) for what changed in each release.
+**[docs/development.md](https://github.com/blip-ha/blip/blob/main/docs/development.md)** covers the rest: the code map, every command, testing on your own Home Assistant, adding a new mode, how changes land, and releasing. CI runs everything on each pull request and weekly, on Home Assistant 2025.1 and the latest. See [CHANGELOG.md](https://github.com/blip-ha/blip/blob/main/CHANGELOG.md) for what changed in each release.
 
 ## Credits
 
@@ -111,4 +111,4 @@ Built with Claude; reviewed and tested on real hardware by the maintainer.
 
 ## License
 
-[Apache 2.0](LICENSE)
+[Apache 2.0](https://github.com/blip-ha/blip/blob/main/LICENSE)
