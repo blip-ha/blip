@@ -23,20 +23,20 @@ Blip only supports sensors someone has tested on real hardware. **Own one of the
 
 <!-- help-wanted:start -->
 <!-- Generated from catalog/sensors.json. Don't edit by hand: run `npm run catalog` in frontend/. -->
-| Sensor | What it takes |
-|---|---|
-| Aqara FP1E | Profile file |
-| Aqara FP310 | Profile file |
-| Aqara FP1 | Issue first: new Regions mode |
-| Aqara P1 motion sensor | Issue first: new Cone mode |
-| Aqara High Precision motion sensor (RTCGQ13LM) | Issue first: new Cone mode |
-| Aqara P2 motion sensor | Issue first: new Cone mode, Thread/Matter |
-| Aqara FP400 | Issue first: new Map mode |
+| Sensor | What it takes | Sign up |
+|---|---|---|
+| Aqara FP1E | Profile file | **[🙋 I'll build this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml&title=Building%3A%20Aqara%20FP1E&sensor=Aqara%20FP1E%20%28Profile%20file%29&integration=Zigbee2MQTT&approach=Add%20a%20profile%20file.)** · [Who's on it?](https://github.com/blip-ha/blip/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22in%20progress%22%20in%3Atitle%20%22Aqara%20FP1E%22) |
+| Aqara FP310 | Profile file | **[🙋 I'll build this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml&title=Building%3A%20Aqara%20FP310&sensor=Aqara%20FP310%20%28Profile%20file%29&integration=Zigbee2MQTT&approach=Add%20a%20profile%20file.)** · [Who's on it?](https://github.com/blip-ha/blip/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22in%20progress%22%20in%3Atitle%20%22Aqara%20FP310%22) |
+| Aqara FP1 | Issue first: new Regions mode | **[🙋 I'll build this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml&title=Building%3A%20Aqara%20FP1&sensor=Aqara%20FP1%20%28Issue%20first%3A%20new%20Regions%20mode%29)** · [Who's on it?](https://github.com/blip-ha/blip/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22in%20progress%22%20in%3Atitle%20%22Aqara%20FP1%22) |
+| Aqara P1 motion sensor | Issue first: new Cone mode | **[🙋 I'll build this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml&title=Building%3A%20Aqara%20P1%20motion%20sensor&sensor=Aqara%20P1%20motion%20sensor%20%28Issue%20first%3A%20new%20Cone%20mode%29)** · [Who's on it?](https://github.com/blip-ha/blip/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22in%20progress%22%20in%3Atitle%20%22Aqara%20P1%20motion%20sensor%22) |
+| Aqara High Precision motion sensor (RTCGQ13LM) | Issue first: new Cone mode | **[🙋 I'll build this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml&title=Building%3A%20Aqara%20High%20Precision%20motion%20sensor%20%28RTCGQ13LM%29&sensor=Aqara%20High%20Precision%20motion%20sensor%20%28RTCGQ13LM%29%20%28Issue%20first%3A%20new%20Cone%20mode%29)** · [Who's on it?](https://github.com/blip-ha/blip/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22in%20progress%22%20in%3Atitle%20%22Aqara%20High%20Precision%20motion%20sensor%20%28RTCGQ13LM%29%22) |
+| Aqara P2 motion sensor | Issue first: new Cone mode, Thread/Matter | **[🙋 I'll build this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml&title=Building%3A%20Aqara%20P2%20motion%20sensor&sensor=Aqara%20P2%20motion%20sensor%20%28Issue%20first%3A%20new%20Cone%20mode%2C%20Thread%2FMatter%29)** · [Who's on it?](https://github.com/blip-ha/blip/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22in%20progress%22%20in%3Atitle%20%22Aqara%20P2%20motion%20sensor%22) |
+| Aqara FP400 | Issue first: new Map mode | **[🙋 I'll build this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml&title=Building%3A%20Aqara%20FP400&sensor=Aqara%20FP400%20%28Issue%20first%3A%20new%20Map%20mode%29)** · [Who's on it?](https://github.com/blip-ha/blip/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22in%20progress%22%20in%3Atitle%20%22Aqara%20FP400%22) |
 <!-- help-wanted:end -->
 
 **Profile file** = one JSON file, no code. **Issue first** = open an issue with your approach and wait for a go-ahead.
 
-1. **Claim it:** [I'm building this](https://github.com/blip-ha/blip/issues/new?template=sensor_claim.yml) so nobody doubles up.
+1. **Claim it:** tap **🙋 I'll build this** on its row. The form opens filled in; tick the box and submit. (**Who's on it?** shows if someone already has it.)
 2. **Build it:** follow [CONTRIBUTING.md](https://github.com/blip-ha/blip/blob/main/CONTRIBUTING.md) (a free GitHub account is all you need).
 3. **Don't own one but want it?** [Request it](https://github.com/blip-ha/blip/issues/new?template=sensor_request.yml).
 
