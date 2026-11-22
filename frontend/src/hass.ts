@@ -26,6 +26,7 @@ export interface DeviceRegistryEntry {
 
 export interface HomeAssistant {
   states: Record<string, HassEntity>;
+  config?: { version?: string };
   entities?: Record<string, EntityRegistryDisplayEntry>;
   devices?: Record<string, DeviceRegistryEntry>;
   callService(

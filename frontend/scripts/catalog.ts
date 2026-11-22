@@ -1,7 +1,11 @@
 // Catalog tool. Plain Node (type stripping), no build step.
 //
-//   node scripts/catalog.ts          regenerate SENSORS.md and the sensor-request form
-//   node scripts/catalog.ts --check  CI: fail on any eligibility/safety problem or stale file
+//   node scripts/catalog.ts                    regenerate SENSORS.md and the issue forms
+//   node scripts/catalog.ts --check            CI: fail on any schema, eligibility or safety problem
+//   node scripts/catalog.ts --check-generated  also fail if the generated files are out of date
+//
+// Contributors only add a profile; generated files are rebuilt after merge by
+// .github/workflows/sync-generated.yml, so pull requests don't need them up to date.
 //
 // Rules (keep the Blip app safe from a bad or hostile profile):
 //   - catalog/sensors.json and every profile match their schemas
@@ -87,6 +91,17 @@ export function problems(catalog: Catalog, profiles: Record<string, ProfileLike>
 const modelLine = (m: CatalogModel) =>
   `| ${m.name} | ${MODE_NAMES[m.mode]} | ${m.integrations.map((i) => INTEGRATION_NAMES[i]).join(", ")} | ${m.notes ?? ""} |`;
 
+/** What a contributor has to do for a help-wanted model (the CONTRIBUTING rule). */
+export function whatItTakes(m: CatalogModel): string {
+  const reasons: string[] = [];
+  if (!MODES[m.mode as keyof typeof MODES]) reasons.push(`new ${MODE_NAMES[m.mode]} mode`);
+  if (!m.integrations.includes("zigbee2mqtt")) reasons.push(m.integrations.map((i) => INTEGRATION_NAMES[i]).join("/"));
+  return reasons.length ? `Issue first: ${reasons.join(", ")}` : "Profile file";
+}
+
+const wantedLine = (m: CatalogModel) =>
+  `| ${m.name} | ${MODE_NAMES[m.mode]} | ${m.integrations.map((i) => INTEGRATION_NAMES[i]).join(", ")} | **${whatItTakes(m)}** | ${m.notes ?? ""} |`;
+
 export function sensorsMd(catalog: Catalog, profileIds: Set<string>): string {
   const supported = catalog.models.filter((m) => m.eligible && profileIds.has(m.id));
   const wanted = catalog.models.filter((m) => m.eligible && !profileIds.has(m.id));
@@ -105,10 +120,13 @@ ${supported.map(modelLine).join("\n")}
 
 ## Help wanted
 
-Approved for Blip but not built yet. Own one of these? See [CONTRIBUTING.md](CONTRIBUTING.md). Want one? Open a **Sensor request** issue.
+Approved for Blip but not built yet. Own one of these? See [CONTRIBUTING.md](CONTRIBUTING.md), then open an **I'm building this** issue so nobody doubles up. Want one? Open a **Sensor request** issue.
 
-${head}
-${wanted.map(modelLine).join("\n")}
+**What it takes:** **Profile file** means one JSON file and no code. **Issue first** means it needs a mode Blip can't draw yet, or ZHA/Matter support: open an issue with your approach and wait for approval before writing code.
+
+| Sensor | Mode | Integration | What it takes | Notes |
+|---|---|---|---|---|
+${wanted.map(wantedLine).join("\n")}
 
 ### Integration work
 
@@ -173,10 +191,60 @@ ${options.map((o) => `        - ${yamlStr(o)}`).join("\n")}
 `;
 }
 
+export function claimForm(catalog: Catalog, profileIds: Set<string>): string {
+  const options = catalog.models
+    .filter((m) => m.eligible && !profileIds.has(m.id))
+    .map((m) => `${m.name} (${whatItTakes(m)})`);
+  return `# Generated from catalog/sensors.json. Don't edit by hand: run \`npm run catalog\` in frontend/.
+name: I'm building this
+description: Claim a help-wanted sensor you own, so nobody else builds it at the same time.
+title: "Building: "
+labels: ["in progress"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **The rule:** new sensor on Zigbee2MQTT = add a profile file. ZHA/Matter or any change to discovery/core = describe your approach below and wait for the maintainer's approval before writing code.
+  - type: dropdown
+    id: sensor
+    attributes:
+      label: Sensor
+      options:
+${options.map((o) => `        - ${yamlStr(o)}`).join("\n")}
+    validations:
+      required: true
+  - type: dropdown
+    id: integration
+    attributes:
+      label: How is your sensor connected?
+      options:
+        - Zigbee2MQTT
+        - ZHA
+        - Thread/Matter
+    validations:
+      required: true
+  - type: textarea
+    id: approach
+    attributes:
+      label: Your approach
+      description: For a profile file, a sentence is enough. For a new mode or ZHA/Matter, describe what you'd change and how Blip would draw it.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I own this sensor and will test on my own Home Assistant, with a walk-test screen recording.
+          required: true
+`;
+}
+
 // ---------- CLI ----------
 
 function main() {
-  const check = process.argv.includes("--check");
+  const checkGenerated = process.argv.includes("--check-generated");
+  const check = checkGenerated || process.argv.includes("--check");
   const catalog = readJson("catalog/sensors.json") as Catalog;
   const files = readdirSync(path("profiles/")).filter((f) => f.endsWith(".json") && f !== "schema.json").sort();
   const profiles: Record<string, ProfileLike> = Object.fromEntries(files.map((f) => [f, readJson(`profiles/${f}`)]));
@@ -196,11 +264,13 @@ function main() {
   const outputs: [string, string][] = [
     ["SENSORS.md", sensorsMd(catalog, ids)],
     [".github/ISSUE_TEMPLATE/sensor_request.yml", requestForm(catalog, ids)],
+    [".github/ISSUE_TEMPLATE/sensor_claim.yml", claimForm(catalog, ids)],
   ];
   for (const [file, content] of outputs) {
     const current = existsSync(path(file)) ? readFileSync(path(file), "utf8") : "";
     if (current === content) continue;
-    if (check) errors.push(`${file} is out of date. Run \`npm run catalog\` in frontend/ and commit it.`);
+    if (checkGenerated) errors.push(`${file} is out of date. Run \`npm run catalog\` in frontend/ and commit it.`);
+    else if (check) console.log(`${file} will be regenerated after merge.`);
     else {
       writeFileSync(path(file), content);
       console.log(`wrote ${file}`);

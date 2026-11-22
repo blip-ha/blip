@@ -564,7 +564,74 @@ var X = (e, t, n, r, i) => {
 </svg>`, ke = () => P`<span class="wordmark" role="img" aria-label="blip"
   ><span class="b">b</span><span>l</span><span class="i">ı<span class="dot">${Oe}</span></span
   ><span>p</span></span
->`, Ae = "\n  .wordmark { display: inline-flex; align-items: baseline; font-family: Inter, system-ui, sans-serif; font-weight: 700; line-height: 1; letter-spacing: -0.035em; color: #f4f0ff; }\n  .wordmark .b { color: #c2410c; }\n  .wordmark .i { position: relative; display: inline-block; margin-right: 0.03em; }\n  .wordmark .dot { position: absolute; left: 50%; margin-left: -0.075em; top: -0.075em; }\n  .wordmark .radar { height: 0.35em; width: auto; display: block; overflow: visible; }\n", je = {
+>`, Ae = "\n  .wordmark { display: inline-flex; align-items: baseline; font-family: Inter, system-ui, sans-serif; font-weight: 700; line-height: 1; letter-spacing: -0.035em; color: #f4f0ff; }\n  .wordmark .b { color: #c2410c; }\n  .wordmark .i { position: relative; display: inline-block; margin-right: 0.03em; }\n  .wordmark .dot { position: absolute; left: 50%; margin-left: -0.075em; top: -0.075em; }\n  .wordmark .radar { height: 0.35em; width: auto; display: block; overflow: visible; }\n", $ = { band: { required: ["range", "presence"] } }, je = (e, t) => !!e && !!t && e.trim().toLowerCase() === t.trim().toLowerCase();
+function Me(e, t) {
+	return Object.keys(t).every((n) => je(e[n], t[n]));
+}
+function Ne(e, t, n) {
+	return !e.startsWith(n.domain + ".") || !e.endsWith(n.suffix) ? !1 : n.max === void 0 || Number(t?.attributes.max) === n.max;
+}
+function Pe(e, t, n, r) {
+	let i = {};
+	for (let [a, o] of Object.entries(e.entities)) {
+		let e = t.filter((e) => Ne(e, n[e], o));
+		i[a] = r && e.find((e) => e === `${o.domain}.${r}${o.suffix}`) || e[0];
+	}
+	return ($[e.mode]?.required ?? []).every((e) => i[e]) ? i : void 0;
+}
+function Fe(e, t) {
+	let n = t.filter((e) => !!$[e.mode]), { states: r } = e, i = e.entities ?? {}, a = e.devices ?? {}, o = /* @__PURE__ */ new Map();
+	for (let e of Object.values(i)) {
+		if (!e.device_id) continue;
+		let t = o.get(e.device_id) ?? [];
+		t.push(e.entity_id), o.set(e.device_id, t);
+	}
+	for (let [e, t] of o) o.set(e, t.filter((e) => r[e]));
+	let s = [], c = /* @__PURE__ */ new Set(), l = (e) => a[e]?.name_by_user || a[e]?.name || "";
+	for (let [e, t] of Object.entries(a)) {
+		let i = n.find((e) => e.match.devices.some((e) => Me(t, e)));
+		if (!i) continue;
+		let a = Pe(i, o.get(e) ?? [], r);
+		a && (s.push({
+			key: e,
+			name: l(e) || i.name,
+			profile: i,
+			entities: a,
+			matchedBy: "model"
+		}), c.add(e));
+	}
+	for (let e of n) {
+		let t = $[e.mode].required[0], n = e.entities[t], a = Object.keys(r).filter((e) => Ne(e, r[e], n)).sort(), u = a.map((e) => e.slice(n.domain.length + 1, -n.suffix.length));
+		a.forEach((t, n) => {
+			let a = i[t]?.device_id ?? null;
+			if (a && c.has(a)) return;
+			let d = u[n], f;
+			if (a) f = o.get(a) ?? [];
+			else {
+				let e = u.filter((e) => e !== d && e.startsWith(d + "_"));
+				f = Object.keys(r).filter((t) => {
+					let n = t.split(".")[1] ?? "";
+					return n.startsWith(d + "_") && !e.some((e) => n.startsWith(e + "_"));
+				});
+			}
+			let p = Pe(e, f, r, a ? void 0 : d);
+			if (!p) return;
+			let m = a ?? d;
+			if (s.some((e) => e.key === m)) return;
+			let h = String(r[t].attributes.friendly_name ?? "").replace(/\s*Detection range$/i, "");
+			s.push({
+				key: m,
+				name: a && l(a) || h || d,
+				profile: e,
+				entities: p,
+				matchedBy: "entities"
+			}), a && c.add(a);
+		});
+	}
+	return s.sort((e, t) => e.name.localeCompare(t.name) || e.key.localeCompare(t.key));
+}
+// src/profile.ts
+var Ie = /* #__PURE__ */ Object.assign({ "../../profiles/aqara_fp300.json": {
 	$schema: "./schema.json",
 	id: "aqara_fp300",
 	name: "Aqara FP300",
@@ -616,8 +683,8 @@ var X = (e, t, n, r, i) => {
 		track_rearm_min: 10,
 		lost_after_s: 3
 	}
-}, $ = { band: { required: ["range", "presence"] } }, Me = /* #__PURE__ */ Object.assign({ "../../profiles/aqara_fp300.json": je });
-function Ne(e) {
+} });
+function Le(e) {
 	try {
 		let t = e;
 		if (!t || typeof t.id != "string" || typeof t.name != "string") return !1;
@@ -632,77 +699,12 @@ function Ne(e) {
 		return !1;
 	}
 }
-var Pe = Object.values(Me).filter((e) => {
-	let t = Ne(e);
+var Re = Object.values(Ie).filter((e) => {
+	let t = Le(e);
 	return t || console.warn("Blip: skipping an invalid sensor profile", e?.id), t;
-}).sort((e, t) => e.name.localeCompare(t.name) || e.id.localeCompare(t.id)), Fe = (e, t) => !!e && !!t && e.trim().toLowerCase() === t.trim().toLowerCase();
-function Ie(e, t) {
-	return Object.keys(t).every((n) => Fe(e[n], t[n]));
-}
-function Le(e, t, n) {
-	return !e.startsWith(n.domain + ".") || !e.endsWith(n.suffix) ? !1 : n.max === void 0 || Number(t?.attributes.max) === n.max;
-}
-function Re(e, t, n, r) {
-	let i = {};
-	for (let [a, o] of Object.entries(e.entities)) {
-		let e = t.filter((e) => Le(e, n[e], o));
-		i[a] = r && e.find((e) => e === `${o.domain}.${r}${o.suffix}`) || e[0];
-	}
-	return ($[e.mode]?.required ?? []).every((e) => i[e]) ? i : void 0;
-}
-function ze(e, t = Pe) {
-	let { states: n } = e, r = e.entities ?? {}, i = e.devices ?? {}, a = /* @__PURE__ */ new Map();
-	for (let e of Object.values(r)) {
-		if (!e.device_id) continue;
-		let t = a.get(e.device_id) ?? [];
-		t.push(e.entity_id), a.set(e.device_id, t);
-	}
-	for (let [e, t] of a) a.set(e, t.filter((e) => n[e]));
-	let o = [], s = /* @__PURE__ */ new Set(), c = (e) => i[e]?.name_by_user || i[e]?.name || "";
-	for (let [e, r] of Object.entries(i)) {
-		let i = t.find((e) => e.match.devices.some((e) => Ie(r, e)));
-		if (!i) continue;
-		let l = Re(i, a.get(e) ?? [], n);
-		l && (o.push({
-			key: e,
-			name: c(e) || i.name,
-			profile: i,
-			entities: l,
-			matchedBy: "model"
-		}), s.add(e));
-	}
-	for (let e of t) {
-		let t = $[e.mode].required[0], i = e.entities[t], l = Object.keys(n).filter((e) => Le(e, n[e], i)).sort(), u = l.map((e) => e.slice(i.domain.length + 1, -i.suffix.length));
-		l.forEach((t, i) => {
-			let l = r[t]?.device_id ?? null;
-			if (l && s.has(l)) return;
-			let d = u[i], f;
-			if (l) f = a.get(l) ?? [];
-			else {
-				let e = u.filter((e) => e !== d && e.startsWith(d + "_"));
-				f = Object.keys(n).filter((t) => {
-					let n = t.split(".")[1] ?? "";
-					return n.startsWith(d + "_") && !e.some((e) => n.startsWith(e + "_"));
-				});
-			}
-			let p = Re(e, f, n, l ? void 0 : d);
-			if (!p) return;
-			let m = l ?? d;
-			if (o.some((e) => e.key === m)) return;
-			let h = String(n[t].attributes.friendly_name ?? "").replace(/\s*Detection range$/i, "");
-			o.push({
-				key: m,
-				name: l && c(l) || h || d,
-				profile: e,
-				entities: p,
-				matchedBy: "entities"
-			}), l && s.add(l);
-		});
-	}
-	return o.sort((e, t) => e.name.localeCompare(t.name) || e.key.localeCompare(t.key));
-}
+}).sort((e, t) => e.name.localeCompare(t.name) || e.id.localeCompare(t.id));
 // src/aim.ts
-function Be({ band: e, lostMs: t, aimOn: n, aimStart: r, now: i, presence: a, enabled: o, distance: s }) {
+function ze({ band: e, lostMs: t, aimOn: n, aimStart: r, now: i, presence: a, enabled: o, distance: s }) {
 	let c = Math.max(0, Math.round((i - r) / 1e3)), l = n && !!s && s.seenAt >= r;
 	if (!l) return {
 		live: !1,
@@ -716,8 +718,8 @@ function Be({ band: e, lostMs: t, aimOn: n, aimStart: r, now: i, presence: a, en
 		waitedS: c
 	};
 }
-var Ve = (e) => q(e).toFixed(1);
-function He({ band: e, editing: t, draftOn: n, pending: r, aimOn: i, known: a, onCount: o, maxFt: s, view: c }) {
+var Be = (e) => q(e).toFixed(1);
+function Ve({ band: e, editing: t, draftOn: n, pending: r, aimOn: i, known: a, onCount: o, maxFt: s, view: c }) {
 	if (t) return `Editing · ${n} of ${e.count} bands on`;
 	if (r) return "Saved · waiting for sensor to confirm";
 	if (!i) return a ? `${o}/${e.count} bands · ${s.toFixed(1)} ft` : "Reading bands…";
@@ -727,10 +729,10 @@ function He({ band: e, editing: t, draftOn: n, pending: r, aimOn: i, known: a, o
 	if (c.lost === "quiet") return "Lost you · keep moving to confirm";
 	if (c.active === void 0) return "No one in range";
 	let l = c.active;
-	return `Band ${l + 1} · ${Ve(l * e.size_m)}–${Ve((l + 1) * e.size_m)} ft`;
+	return `Band ${l + 1} · ${Be(l * e.size_m)}–${Be((l + 1) * e.size_m)} ft`;
 }
 // src/hass.ts
-var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? new Date(e.last_reported).getTime() : 0), We = [a(Ae), o`
+var He = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? new Date(e.last_reported).getTime() : 0), Ue = [a(Ae), o`
     :host {
       --bg: #160b29;
       --card: #22143d;
@@ -758,6 +760,9 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
 
     .title { font-size: 44px; margin: 0; }
     .ver { text-align: center; font-size: 11px; color: var(--muted); opacity: 0.7; margin-top: 8px; }
+    .report { text-align: center; font-size: 12px; margin-top: 6px; }
+    .report a { color: var(--soft); text-decoration: underline; text-underline-offset: 2px; }
+    .report a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
     .pill-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 8px; flex-wrap: nowrap; }
     .pill-row .pill { white-space: nowrap; padding: 7px 14px; }
     .pill-row .pill { margin: 0; }
@@ -842,11 +847,23 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
     .pill.hot { border-color: var(--accent); color: #f3e8ff; }
     .pill.lost { border-color: #ea580c; color: #fed7aa; background: #3a1708; }
 
-  `], Ge = "blip.sensor", Ke = {
+  `], We = "blip.sensor", Ge = {
 	zigbee2mqtt: "Zigbee2MQTT",
 	zha: "ZHA",
 	matter: "Matter"
-}, qe = {
+}, Ke = "https://github.com/blip-ha/blip/issues/new";
+function qe(e, t, n, r) {
+	let i = new URLSearchParams({
+		template: "bug_report.yml",
+		blip: `v${e}`
+	});
+	if (t && i.set("ha", t), n) {
+		let e = n.profile.name, t = r && !e.toLowerCase().includes(r.toLowerCase()) ? `${e} (${r})` : e;
+		i.set("sensor", `${t} via ${Ge[n.profile.integration]}`);
+	}
+	return `${Ke}?${i}`;
+}
+var Je = {
 	get: (e) => {
 		try {
 			return localStorage.getItem(e);
@@ -859,7 +876,7 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
 			localStorage.setItem(e, t);
 		} catch {}
 	}
-}, Je = class extends W {
+}, Ye = class extends W {
 	static {
 		this.properties = {
 			hass: { attribute: !1 },
@@ -875,7 +892,7 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
 		};
 	}
 	static {
-		this.styles = We;
+		this.styles = Ue;
 	}
 	constructor() {
 		super(), this.sensors = [], this.sensorsKey = "", this.narrow = !1, this.selected = "", this.aimOn = !1, this.draft = null, this.sel = 0, this.pendingMask = null, this.saveError = "", this.aimStart = 0, this.now = Date.now();
@@ -893,8 +910,8 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
 	}
 	refreshSensors() {
 		let e = this.hass, t = Object.keys(e.states).length + "";
-		if ((this.registries?.[0] !== e.entities || this.registries?.[1] !== e.devices || t !== this.sensorsKey) && (this.registries = [e.entities, e.devices], this.sensorsKey = t, this.sensors = ze(e), !this.sensors.some((e) => e.key === this.selected))) {
-			let e = qe.get(Ge);
+		if ((this.registries?.[0] !== e.entities || this.registries?.[1] !== e.devices || t !== this.sensorsKey) && (this.registries = [e.entities, e.devices], this.sensorsKey = t, this.sensors = Fe(e, Re), !this.sensors.some((e) => e.key === this.selected))) {
+			let e = Je.get(We);
 			this.selected = this.sensors.find((t) => t.key === e)?.key ?? this.sensors[0]?.key ?? "";
 		}
 	}
@@ -954,7 +971,7 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
 		}
 	}
 	pick(e) {
-		this.stopAim(), this.cancelEdit(), this.pendingMask = null, this.selected = e.target.value, qe.set(Ge, this.selected);
+		this.stopAim(), this.cancelEdit(), this.pendingMask = null, this.selected = e.target.value, Je.set(We, this.selected);
 	}
 	toggleMenu() {
 		this.dispatchEvent(new Event("hass-toggle-menu", {
@@ -971,8 +988,10 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
     </header>`;
 	}
 	renderFooter() {
+		let e = this.current(), t = e ? this.hass?.devices?.[e.key]?.model : void 0;
 		return P`<div class="footmark">${De(44, "blip")}</div>
-      <p class="ver">v${"0.3.2"}</p>`;
+      <p class="ver">v${"0.3.2"}</p>
+      <p class="report"><a href=${qe("0.3.2", this.hass?.config?.version, e, t)} target="_blank" rel="noopener noreferrer">Report a problem</a></p>`;
 	}
 	render() {
 		if (!this.hass) return P`<main>${this.renderHeader()}<div class="card"><p class="muted">Connecting to Home Assistant…</p></div></main>`;
@@ -983,14 +1002,14 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
           <h2>No supported sensor found</h2>
           <p class="muted">Blip works with:</p>
           <ul class="supported">
-            ${Pe.map((e) => P`<li>${e.name} <span class="muted">(${Ke[e.integration]})</span></li>`)}
+            ${Re.map((e) => P`<li>${e.name} <span class="muted">(${Ge[e.integration]})</span></li>`)}
           </ul>
         </div>
         ${this.renderFooter()}
       </main>`;
 	}
 	renderSensor(e) {
-		let { profile: t } = e, n = t.band, r = e.entities, i = (e) => e ? this.hass.states[e] : void 0, a = i(r.range)?.state, o = Number(a), s = a !== void 0 && a !== "" && !Number.isNaN(o), c = s ? J(o, n.count) : Array(n.count).fill(!0), l = this.draft !== null, u = l ? this.draft : this.pendingMask === null ? c : J(this.pendingMask, n.count), d = l ? this.draft.filter(Boolean).length : 0, f = l && Y(this.draft) !== Y(c), p = c.filter(Boolean).length, m = i(r.presence)?.state === "on", h = i(r.pir)?.state === "on", g = i(r.battery)?.state, _ = i(r.presence)?.state === "unavailable", ee = q((c.lastIndexOf(!0) + 1) * n.size_m), v = i(r.distance), y = Number(v?.state), b = Be({
+		let { profile: t } = e, n = t.band, r = e.entities, i = (e) => e ? this.hass.states[e] : void 0, a = i(r.range)?.state, o = Number(a), s = a !== void 0 && a !== "" && !Number.isNaN(o), c = s ? J(o, n.count) : Array(n.count).fill(!0), l = this.draft !== null, u = l ? this.draft : this.pendingMask === null ? c : J(this.pendingMask, n.count), d = l ? this.draft.filter(Boolean).length : 0, f = l && Y(this.draft) !== Y(c), p = c.filter(Boolean).length, m = i(r.presence)?.state === "on", h = i(r.pir)?.state === "on", g = i(r.battery)?.state, _ = i(r.presence)?.state === "unavailable", ee = q((c.lastIndexOf(!0) + 1) * n.size_m), v = i(r.distance), y = Number(v?.state), b = ze({
 			band: n,
 			lostMs: (t.behavior.lost_after_s ?? 3) * 1e3,
 			aimOn: this.aimOn,
@@ -1000,9 +1019,9 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
 			enabled: c,
 			distance: v && !Number.isNaN(y) ? {
 				meters: y,
-				seenAt: Ue(v)
+				seenAt: He(v)
 			} : void 0
-		}), { live: x, active: S, lost: C, waitedS: w } = b, T = He({
+		}), { live: x, active: S, lost: C, waitedS: w } = b, T = Ve({
 			band: n,
 			editing: l,
 			draftOn: d,
@@ -1109,5 +1128,5 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
     </main>`;
 	}
 };
-customElements.get("blip-panel") || customElements.define("blip-panel", Je);
-export { Je as BlipPanel };
+customElements.get("blip-panel") || customElements.define("blip-panel", Ye);
+export { Ye as BlipPanel, qe as reportUrl };

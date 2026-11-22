@@ -126,3 +126,25 @@ describe("Track after band edits", () => {
     expect(presses()).toBe(2);
   });
 });
+
+describe("Report a problem link", () => {
+  it("pre-fills versions and the sensor model, and nothing personal", async () => {
+    el.hass = {
+      ...hass(16777215),
+      config: { version: "2026.11.2" },
+      entities: Object.fromEntries(Object.keys(states(16777215)).map((id) => [id, { entity_id: id, device_id: "dev1" }])),
+      devices: { dev1: { id: "dev1", name: "Jordan Den Presence", name_by_user: "Jordan's den", manufacturer: "Aqara", model: "Presence sensor FP300" } },
+    };
+    await el.updateComplete;
+    const a = q<HTMLAnchorElement>(".report a");
+    const url = new URL(a.getAttribute("href")!);
+    expect(url.origin + url.pathname).toBe("https://github.com/blip-ha/blip/issues/new");
+    expect(url.searchParams.get("template")).toBe("bug_report.yml");
+    expect(url.searchParams.get("blip")).toMatch(/^v\d/);
+    expect(url.searchParams.get("ha")).toBe("2026.11.2");
+    expect(url.searchParams.get("sensor")).toBe("Aqara FP300 (Presence sensor FP300) via Zigbee2MQTT");
+    expect(a.getAttribute("target")).toBe("_blank");
+    expect(a.getAttribute("rel")).toContain("noopener");
+    expect(a.getAttribute("href")).not.toMatch(/Jordan|den_fp300|den%20fp300|localhost|nabu/i);
+  });
+});

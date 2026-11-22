@@ -1,0 +1,73 @@
+name: Sync generated files
+
+# Contributors only add profiles/<id>.json. After something lands on main, this rebuilds
+# everything generated from the profiles and the catalog (SENSORS.md, the issue forms and the
+# panel bundle) and offers it as one pull request, "Sync generated files". Two sensor pull
+# requests therefore never conflict, and main catches up right after each merge.
+#
+# Pull requests opened with the workflow token don't start other workflows, so this
+# dispatches CI on the sync branch itself; the checks then show on the sync pull request.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - profiles/**
+      - catalog/**
+      - frontend/src/**
+      - frontend/scripts/**
+      - frontend/package.json
+      - frontend/package-lock.json
+      - custom_components/blip/manifest.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: sync-generated
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync generated files
+    runs-on: ubuntu-latest
+    env:
+      BRANCH: automation/sync-generated
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Regenerate
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run catalog
+          npm run build
+      - name: Open or update the sync pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "Generated files are already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git add -A
+          git commit -m "Sync generated files" -m "Rebuilt from main by the Sync generated files workflow: SENSORS.md, the issue forms and the panel bundle."
+          git push --force origin "$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')" ]; then
+            gh pr create --base main --head "$BRANCH" --title "Sync generated files" \
+              --body "Rebuilt automatically after recent merges to main: SENSORS.md, the issue forms and the panel bundle. Nothing here is hand-written; merge once CI is green."
+          fi
+          gh workflow run ci.yml --ref "$BRANCH"

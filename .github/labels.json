@@ -1,8 +1,37 @@
 [
-  { "name": "sensor request", "color": "5319e7", "description": "Request for an approved sensor that isn't supported yet" },
-  { "name": "help wanted", "color": "008672", "description": "Open for someone who owns the sensor to build" },
-  { "name": "proposal", "color": "fbca04", "description": "New sensor proposed for the catalog; the maintainer decides" },
-  { "name": "bug", "color": "d73a4a", "description": "Something isn't working" },
-  { "name": "needs triage", "color": "ededed", "description": "Not reviewed by the maintainer yet" },
-  { "name": "maintainer-approved", "color": "0e8a16", "description": "Maintainer reviewed this PR; allows changes outside profiles/" }
+  {
+    "name": "sensor request",
+    "color": "5319e7",
+    "description": "Request for an approved sensor that isn't supported yet"
+  },
+  {
+    "name": "help wanted",
+    "color": "008672",
+    "description": "Open for someone who owns the sensor to build"
+  },
+  {
+    "name": "in progress",
+    "color": "1d76db",
+    "description": "Someone who owns the sensor is building it"
+  },
+  {
+    "name": "proposal",
+    "color": "fbca04",
+    "description": "New sensor proposed for the catalog; the maintainer decides"
+  },
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Something isn't working"
+  },
+  {
+    "name": "needs triage",
+    "color": "ededed",
+    "description": "Not reviewed by the maintainer yet"
+  },
+  {
+    "name": "maintainer-approved",
+    "color": "0e8a16",
+    "description": "Maintainer reviewed this PR; allows changes outside profiles/"
+  }
 ]
