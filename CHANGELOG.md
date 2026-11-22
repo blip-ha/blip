@@ -2,7 +2,7 @@
 
 All notable changes to Blip. Versions follow the integration's `manifest.json`.
 
-## Unreleased
+## 0.4.0 (2026-11-22)
 
 ### Added
 - **Report a problem** link at the bottom of the Blip page: opens a bug report pre-filled with your Blip version, Home Assistant version and sensor model (no names or addresses).
