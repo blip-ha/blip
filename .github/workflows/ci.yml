@@ -2,8 +2,13 @@ name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
+  # Weekly run against the newest Home Assistant, to catch an HA release that breaks Blip
+  # before users do. Mondays 11:17 UTC (5:17 AM Central).
+  schedule:
+    - cron: "17 11 * * 1"
 
 permissions:
   contents: read
@@ -20,8 +25,8 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -57,8 +62,8 @@ jobs:
             python: "3.14"
             packages: "pytest-homeassistant-custom-component"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - name: Install Home Assistant test harness
@@ -83,8 +88,8 @@ jobs:
             python: "3.14"
             packages: "homeassistant"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       # HA 2026.11+ refuses to start outside a virtual environment or container.
@@ -102,7 +107,7 @@ jobs:
     name: hassfest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: home-assistant/actions/hassfest@master
 
   hacs:
