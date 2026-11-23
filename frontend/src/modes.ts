@@ -6,4 +6,5 @@ export type Role = "range" | "presence" | "pir" | "distance" | "battery" | "trac
 /** Modes this version of Blip can draw, and the roles each one needs. */
 export const MODES: Partial<Record<Mode, { required: Role[] }>> = {
   band: { required: ["range", "presence"] },
+  regions: { required: ["presence"] },
 };

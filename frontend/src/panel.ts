@@ -6,6 +6,7 @@ import { DEFAULT_LOST_S, DEFAULT_REARM_MIN, PROFILES } from "./profile";
 import { aimView, pillText } from "./aim";
 import { lastSeen, type HomeAssistant } from "./hass";
 import { styles } from "./styles";
+import { regionsForCell, type RegionDefinition } from "./regions";
 
 declare const __BLIP_VERSION__: string;
 
@@ -73,6 +74,7 @@ export class BlipPanel extends LitElement {
   declare private now: number;
 
   private sensors: Sensor[] = [];
+  private fp1Regions = new Map<string, RegionDefinition[]>();
   private sensorsKey = ""; // what the list was built from
   private registries?: [unknown, unknown];
   private rearm?: number;
@@ -266,7 +268,81 @@ export class BlipPanel extends LitElement {
         </div>
         ${this.renderFooter()}
       </main>`;
+    if (s.profile.mode === "regions") return this.renderRegions(s);
     return this.renderSensor(s);
+  }
+
+  private renderRegions(s: Sensor) {
+    const geometry = s.profile.regions!;
+    const cells = Array.from(
+      { length: geometry.columns * geometry.rows },
+      (_, i) => ({
+        x: (i % geometry.columns) + 1,
+        y: Math.floor(i / geometry.columns) + 1,
+      })
+    );
+
+    const configuredRegions = this.fp1Regions.get(s.key) ?? [];
+
+    const state = s.entities.presence
+      ? this.hass!.states[s.entities.presence]?.state
+      : undefined;
+    const presence = state === "on";
+    const offline = state !== "on" && state !== "off";
+
+    return html`<main>
+      ${this.renderHeader()}
+      <label class="sensor">
+        <span class="sensor-label">Sensor</span>
+        ${this.sensors.length > 1
+          ? html`<span class="select-wrap">
+              <select class="picker" .value=${s.key} @change=${this.pick}>
+                ${this.sensors.map((x) => html`<option value=${x.key} ?selected=${x.key === s.key}>${x.name}</option>`)}
+              </select>
+              <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </span>`
+          : html`<span class="picker single">${s.name}</span>`}
+      </label>
+      <section class="card">
+        <p class="muted">Aqara FP1 · Regions</p>
+      </section>
+      <section class="card">
+        <h2>Detection grid</h2>
+        <p class="muted">Sensor position</p>
+        <div
+          style="display:grid;grid-template-columns:repeat(${geometry.columns},minmax(0,1fr));gap:6px;margin:16px 0"
+          aria-label="FP1 detection grid"
+        >
+          ${cells.map((cell) => html`
+            <div
+              class="card"
+              style="padding:12px 4px;text-align:center;margin:0"
+              title="X${cell.x}, Y${cell.y}"
+              data-region-cell="X${cell.x}Y${cell.y}"
+              data-regions="${regionsForCell(cell.x, cell.y, configuredRegions).join(",")}"
+            >
+              X${cell.x} Y${cell.y}
+              ${regionsForCell(cell.x, cell.y, configuredRegions).length
+                ? html`<small>Region ${regionsForCell(cell.x, cell.y, configuredRegions).join(", ")}</small>`
+                : nothing}
+            </div>
+          `)}
+        </div>
+        <p class="muted">
+          ${geometry.columns} × ${geometry.rows} cells ·
+          Up to ${geometry.max_regions} regions
+        </p>
+        <p class="muted">Grid preview only — cell occupancy is not available.</p>
+      </section>
+      <section class="card status ${offline ? "" : presence ? "present" : ""}">
+        <div class="icon" aria-hidden="true">${presence ? "●" : "○"}</div>
+        <div>
+          <h2>${offline ? "Sensor offline" : presence ? "Presence detected" : "No presence detected"}</h2>
+          <p class="muted">mmWave ${offline ? "unavailable" : presence ? "on" : "off"}</p>
+        </div>
+      </section>
+      ${this.renderFooter()}
+    </main>`;
   }
 
   private renderSensor(s: Sensor) {

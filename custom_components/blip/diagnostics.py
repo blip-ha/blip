@@ -71,7 +71,15 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     sensors: list[dict[str, Any]] = []
     for device in devices.devices.values():
         ids = [e.entity_id for e in er.async_entries_for_device(entities, device.id)]
-        for profile in profiles:
+        model_profiles = [
+            profile for profile in profiles
+            if any(_device_matches(device, rule) for rule in profile["match"]["devices"])
+        ]
+        candidates = model_profiles or [
+            profile for profile in profiles
+            if "range" in profile["required"]
+        ]
+        for profile in candidates:
             by_model = any(_device_matches(device, rule) for rule in profile["match"]["devices"])
             roles: dict[str, Any] = {}
             for role, rule in profile["entities"].items():

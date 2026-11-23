@@ -65,7 +65,7 @@ async def test_diagnostics(hass: HomeAssistant, hass_client) -> None:
     assert diag["blip_version"]
     assert diag["home_assistant_version"]
     assert diag["panel_registered"] is True
-    assert diag["profiles_bundled"] == ["aqara_fp300"]
+    assert diag["profiles_bundled"] == ["aqara_fp1", "aqara_fp300"]
     [sensor] = diag["sensors"]
     assert sensor["profile"] == "aqara_fp300"
     assert sensor["model"] == "Presence sensor FP300" and sensor["model_id"] == "PS-S04D"

@@ -1,6 +1,32 @@
 {
   "profiles": [
     {
+      "id": "aqara_fp1",
+      "name": "Aqara FP1",
+      "integration": "zigbee2mqtt",
+      "mode": "regions",
+      "match": {
+        "devices": [
+          {
+            "manufacturer": "Aqara",
+            "model": "Presence sensor FP1"
+          },
+          {
+            "model_id": "RTCZCGQ11LM"
+          }
+        ]
+      },
+      "entities": {
+        "presence": {
+          "domain": "binary_sensor",
+          "suffix": "_presence"
+        }
+      },
+      "required": [
+        "presence"
+      ]
+    },
+    {
       "id": "aqara_fp300",
       "name": "Aqara FP300",
       "integration": "zigbee2mqtt",

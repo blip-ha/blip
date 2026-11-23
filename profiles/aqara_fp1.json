@@ -1,0 +1,37 @@
+{
+  "$schema": "./schema.json",
+  "id": "aqara_fp1",
+  "name": "Aqara FP1",
+  "manufacturer": "Aqara",
+  "integration": "zigbee2mqtt",
+  "mode": "regions",
+  "match": {
+    "devices": [
+      {
+        "manufacturer": "Aqara",
+        "model": "Presence sensor FP1"
+      },
+      {
+        "model_id": "RTCZCGQ11LM"
+      }
+    ]
+  },
+  "entities": {
+    "presence": {
+      "domain": "binary_sensor",
+      "suffix": "_presence"
+    }
+  },
+  "field_of_view": {
+    "angle_deg": 120,
+    "range_m": 5
+  },
+  "behavior": {
+    "sleepy": false
+  },
+  "regions": {
+    "columns": 4,
+    "rows": 7,
+    "max_regions": 10
+  }
+}
