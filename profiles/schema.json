@@ -114,7 +114,9 @@
           "battery",
           "track",
           "motion",
-          "interval"
+          "interval",
+          "action",
+          "configured_regions"
         ]
       }
     },
@@ -282,7 +284,8 @@
             "number",
             "button",
             "select",
-            "switch"
+            "switch",
+            "event"
           ]
         },
         "suffix": {

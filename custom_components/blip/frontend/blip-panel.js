@@ -647,10 +647,20 @@ var Le = /* #__PURE__ */ Object.assign({
 			manufacturer: "Aqara",
 			model: "Presence sensor FP1"
 		}, { model_id: "RTCZCGQ11LM" }] },
-		entities: { presence: {
-			domain: "binary_sensor",
-			suffix: "_presence"
-		} },
+		entities: {
+			presence: {
+				domain: "binary_sensor",
+				suffix: "_presence"
+			},
+			action: {
+				domain: "event",
+				suffix: "_action"
+			},
+			configured_regions: {
+				domain: "sensor",
+				suffix: "_configured_regions"
+			}
+		},
 		field_of_view: {
 			angle_deg: 120,
 			range_m: 5
@@ -889,27 +899,86 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
 
   `];
 // src/regions.ts
+function Ge(e, t) {
+	if (!Number.isInteger(e.region_id) || e.region_id < 1 || e.region_id > t.max_regions || !Array.isArray(e.zones)) return !1;
+	let n = /* @__PURE__ */ new Set();
+	for (let r of e.zones) {
+		if (!r || !Number.isInteger(r.x) || !Number.isInteger(r.y) || r.x < 1 || r.x > t.columns || r.y < 1 || r.y > t.rows) return !1;
+		let e = `${r.x},${r.y}`;
+		if (n.has(e)) return !1;
+		n.add(e);
+	}
+	return !0;
+}
 function $(e, t, n) {
 	return n.filter((n) => n.zones.some((n) => n.x === e && n.y === t)).map((e) => e.region_id).sort((e, t) => e - t);
 }
+function Ke(e, t) {
+	if (!e.trim()) return [];
+	let n = [], r = /* @__PURE__ */ new Set();
+	for (let i of e.split(/;|\n|\|/)) {
+		let e = i.trim().match(/^(\d+):\s*(.+?)\s*\(\d+ zones?\)$/);
+		if (!e) return [];
+		let a = Number(e[1]), o = [];
+		for (let n of e[2].split(/,\s*/)) {
+			let e = n.trim().match(/^y(\d+)=x(\d+)(?:-(\d+))?$/);
+			if (!e) return [];
+			let r = Number(e[1]), i = Number(e[2]), a = e[3] ? Number(e[3]) : i;
+			if (a < i || a - i >= t.columns) return [];
+			for (let e = i; e <= a; e++) o.push({
+				x: e,
+				y: r
+			});
+		}
+		let s = {
+			region_id: a,
+			zones: o
+		};
+		if (r.has(a) || !Ge(s, t)) return [];
+		r.add(a), n.push(s);
+	}
+	return n;
+}
+// src/region-occupancy.ts
+function qe(e, t, n) {
+	let r = e ?? {
+		lastEvent: "",
+		occupied: /* @__PURE__ */ new Set()
+	};
+	if (!t || !t.state || t.state === "unknown" || t.state === "unavailable") return r;
+	if (!e) return {
+		lastEvent: t.state,
+		occupied: /* @__PURE__ */ new Set()
+	};
+	if (r.lastEvent === t.state) return r;
+	let i = t.attributes.event_type, a = Number(t.attributes.region);
+	if (!Number.isInteger(a) || a < 1 || a > n) return r;
+	let o = i === "region_occupied" || i === "region_enter";
+	if (!o && i !== "region_unoccupied" && i !== "region_leave") return r;
+	let s = new Set(r.occupied);
+	return o ? s.add(a) : s.delete(a), {
+		lastEvent: t.state,
+		occupied: s
+	};
+}
 // src/panel.ts
-var Ge = "blip.sensor", Ke = {
+var Je = "blip.sensor", Ye = {
 	zigbee2mqtt: "Zigbee2MQTT",
 	zha: "ZHA",
 	matter: "Matter"
-}, qe = "https://github.com/blip-ha/blip/issues/new";
-function Je(e, t, n, r) {
+}, Xe = "https://github.com/blip-ha/blip/issues/new";
+function Ze(e, t, n, r) {
 	let i = new URLSearchParams({
 		template: "bug_report.yml",
 		blip: `v${e}`
 	});
 	if (t && i.set("ha", t), n) {
 		let e = n.profile.name, t = r && !e.toLowerCase().includes(r.toLowerCase()) ? `${e} (${r})` : e;
-		i.set("sensor", `${t} via ${Ke[n.profile.integration]}`);
+		i.set("sensor", `${t} via ${Ye[n.profile.integration]}`);
 	}
-	return `${qe}?${i}`;
+	return `${Xe}?${i}`;
 }
-var Ye = {
+var Qe = {
 	get: (e) => {
 		try {
 			return localStorage.getItem(e);
@@ -922,13 +991,14 @@ var Ye = {
 			localStorage.setItem(e, t);
 		} catch {}
 	}
-}, Xe = class extends W {
+}, $e = class extends W {
 	static {
 		this.properties = {
 			hass: { attribute: !1 },
 			narrow: { type: Boolean },
 			selected: { state: !0 },
 			aimOn: { state: !0 },
+			regionTestOn: { state: !0 },
 			draft: { state: !0 },
 			sel: { state: !0 },
 			pendingMask: { state: !0 },
@@ -941,13 +1011,13 @@ var Ye = {
 		this.styles = We;
 	}
 	constructor() {
-		super(), this.sensors = [], this.fp1Regions = /* @__PURE__ */ new Map(), this.sensorsKey = "", this.narrow = !1, this.selected = "", this.aimOn = !1, this.draft = null, this.sel = 0, this.pendingMask = null, this.saveError = "", this.aimStart = 0, this.now = Date.now();
+		super(), this.sensors = [], this.fp1Regions = /* @__PURE__ */ new Map(), this.fp1Occupancy = /* @__PURE__ */ new Map(), this.sensorsKey = "", this.narrow = !1, this.selected = "", this.aimOn = !1, this.regionTestOn = !1, this.draft = null, this.sel = 0, this.pendingMask = null, this.saveError = "", this.aimStart = 0, this.now = Date.now();
 	}
 	disconnectedCallback() {
 		super.disconnectedCallback(), this.stopAim();
 	}
 	willUpdate(e) {
-		e.has("hass") && this.hass && (this.refreshSensors(), this.checkSaveConfirmed());
+		e.has("hass") && this.hass && (this.refreshSensors(), this.refreshFp1Occupancy(), this.checkSaveConfirmed());
 	}
 	checkSaveConfirmed() {
 		if (this.pendingMask === null) return;
@@ -957,8 +1027,30 @@ var Ye = {
 	refreshSensors() {
 		let e = this.hass, t = Object.keys(e.states).length + "";
 		if ((this.registries?.[0] !== e.entities || this.registries?.[1] !== e.devices || t !== this.sensorsKey) && (this.registries = [e.entities, e.devices], this.sensorsKey = t, this.sensors = Ie(e, ze), !this.sensors.some((e) => e.key === this.selected))) {
-			let e = Ye.get(Ge);
+			let e = Qe.get(Je);
 			this.selected = this.sensors.find((t) => t.key === e)?.key ?? this.sensors[0]?.key ?? "";
+		}
+	}
+	refreshFp1Occupancy() {
+		if (this.hass) for (let e of this.sensors) {
+			if (e.profile.mode !== "regions" || !e.profile.regions) continue;
+			let t = e.entities.presence, n = t ? this.hass.states[t]?.state : void 0, r = e.entities.action, i = r ? this.hass.states[r] : void 0;
+			if (n !== "on" && n !== "off" || !i) {
+				this.fp1Occupancy.delete(e.key);
+				continue;
+			}
+			let a = qe(this.fp1Occupancy.get(e.key), i, e.profile.regions.max_regions);
+			this.fp1Occupancy.set(e.key, a);
+		}
+	}
+	toggleRegionTest() {
+		let e = this.current();
+		if (e && e.profile.mode === "regions" && (this.regionTestOn = !this.regionTestOn, this.regionTestOn)) {
+			let t = e.entities.action, n = t ? this.hass?.states[t] : void 0;
+			this.fp1Occupancy.set(e.key, {
+				lastEvent: n?.state ?? "",
+				occupied: /* @__PURE__ */ new Set()
+			});
 		}
 	}
 	current() {
@@ -1017,7 +1109,7 @@ var Ye = {
 		}
 	}
 	pick(e) {
-		this.stopAim(), this.cancelEdit(), this.pendingMask = null, this.selected = e.target.value, Ye.set(Ge, this.selected);
+		this.stopAim(), this.regionTestOn = !1, this.cancelEdit(), this.pendingMask = null, this.selected = e.target.value, Qe.set(Je, this.selected);
 	}
 	toggleMenu() {
 		this.dispatchEvent(new Event("hass-toggle-menu", {
@@ -1037,7 +1129,7 @@ var Ye = {
 		let e = this.current(), t = e ? this.hass?.devices?.[e.key]?.model : void 0;
 		return P`<div class="footmark">${Oe(44, "blip")}</div>
       <p class="ver">v${"0.4.2"}</p>
-      <p class="report"><a href=${Je("0.4.2", this.hass?.config?.version, e, t)} target="_blank" rel="noopener noreferrer">Report a problem</a></p>`;
+      <p class="report"><a href=${Ze("0.4.2", this.hass?.config?.version, e, t)} target="_blank" rel="noopener noreferrer">Report a problem</a></p>`;
 	}
 	render() {
 		if (!this.hass) return P`<main>${this.renderHeader()}<div class="card"><p class="muted">Connecting to Home Assistant…</p></div></main>`;
@@ -1048,7 +1140,7 @@ var Ye = {
           <h2>No supported sensor found</h2>
           <p class="muted">Blip works with:</p>
           <ul class="supported">
-            ${ze.map((e) => P`<li>${e.name} <span class="muted">(${Ke[e.integration]})</span></li>`)}
+            ${ze.map((e) => P`<li>${e.name} <span class="muted">(${Ye[e.integration]})</span></li>`)}
           </ul>
         </div>
         ${this.renderFooter()}
@@ -1058,7 +1150,9 @@ var Ye = {
 		let t = e.profile.regions, n = Array.from({ length: t.columns * t.rows }, (e, n) => ({
 			x: n % t.columns + 1,
 			y: Math.floor(n / t.columns) + 1
-		})), r = this.fp1Regions.get(e.key) ?? [], i = e.entities.presence ? this.hass.states[e.entities.presence]?.state : void 0, a = i === "on", o = i !== "on" && i !== "off";
+		})), r = e.entities.configured_regions, i = r ? this.hass?.states[r]?.state : void 0;
+		i !== void 0 && e.profile.regions && this.fp1Regions.set(e.key, Ke(i, e.profile.regions));
+		let a = this.fp1Regions.get(e.key) ?? [], o = e.entities.presence && ["on", "off"].includes(this.hass?.states[e.entities.presence]?.state ?? "") ? this.fp1Occupancy.get(e.key)?.occupied ?? /* @__PURE__ */ new Set() : /* @__PURE__ */ new Set(), s = (e, t) => $(e, t, a), c = (e, t) => this.regionTestOn && s(e, t).some((e) => o.has(e)), l = e.entities.presence ? this.hass.states[e.entities.presence]?.state : void 0, u = l === "on", d = l !== "on" && l !== "off";
 		return P`<main>
       ${this.renderHeader()}
       <label class="sensor">
@@ -1073,6 +1167,26 @@ var Ye = {
       <section class="card">
         <p class="muted">Aqara FP1 · Regions</p>
       </section>
+      <section class="card aim">
+        <div class="aim-row">
+          <div>
+            <h2>Aim test</h2>
+            <p class="muted">See which FP1 regions respond as you walk the room.</p>
+          </div>
+          <button
+            class="switch ${this.regionTestOn ? "on" : ""}"
+            role="switch"
+            aria-checked=${this.regionTestOn ? "true" : "false"}
+            aria-label="Aim test"
+            ?disabled=${d}
+            @click=${this.toggleRegionTest}
+          ><i></i></button>
+        </div>
+        ${this.regionTestOn ? P`<div class="aim-state live">
+              <strong>Coverage test active</strong>
+              <span>Active regions: ${[...o].sort((e, t) => e - t).join(", ") || "None"}</span>
+            </div>` : L}
+      </section>
       <section class="card">
         <h2>Detection grid</h2>
         <p class="muted">Sensor position</p>
@@ -1083,13 +1197,14 @@ var Ye = {
           ${n.map((e) => P`
             <div
               class="card"
-              style="padding:12px 4px;text-align:center;margin:0"
+              style=${`padding:12px 4px;text-align:center;margin:0;${c(e.x, e.y) ? "background:#176b45;color:#fff;border-color:#28a76d;" : ""}`}
               title="X${e.x}, Y${e.y}"
               data-region-cell="X${e.x}Y${e.y}"
-              data-regions="${$(e.x, e.y, r).join(",")}"
+              data-regions="${s(e.x, e.y).join(",")}"
+              data-occupied="${c(e.x, e.y)}"
             >
               X${e.x} Y${e.y}
-              ${$(e.x, e.y, r).length ? P`<small>Region ${$(e.x, e.y, r).join(", ")}</small>` : L}
+              ${$(e.x, e.y, a).length ? P`<small>Region ${$(e.x, e.y, a).join(", ")}</small>` : L}
             </div>
           `)}
         </div>
@@ -1097,13 +1212,13 @@ var Ye = {
           ${t.columns} × ${t.rows} cells ·
           Up to ${t.max_regions} regions
         </p>
-        <p class="muted">Grid preview only — cell occupancy is not available.</p>
+        <p class="muted">Green cells show live region occupancy while Aim test is active.</p>
       </section>
-      <section class="card status ${o ? "" : a ? "present" : ""}">
-        <div class="icon" aria-hidden="true">${a ? "●" : "○"}</div>
+      <section class="card status ${d ? "" : u ? "present" : ""}">
+        <div class="icon" aria-hidden="true">${u ? "●" : "○"}</div>
         <div>
-          <h2>${o ? "Sensor offline" : a ? "Presence detected" : "No presence detected"}</h2>
-          <p class="muted">mmWave ${o ? "unavailable" : a ? "on" : "off"}</p>
+          <h2>${d ? "Sensor offline" : u ? "Presence detected" : "No presence detected"}</h2>
+          <p class="muted">mmWave ${d ? "unavailable" : u ? "on" : "off"}</p>
         </div>
       </section>
       ${this.renderFooter()}
@@ -1229,5 +1344,5 @@ var Ye = {
     </main>`;
 	}
 };
-customElements.get("blip-panel") || customElements.define("blip-panel", Xe);
-export { Xe as BlipPanel, Je as reportUrl };
+customElements.get("blip-panel") || customElements.define("blip-panel", $e);
+export { $e as BlipPanel, Ze as reportUrl };

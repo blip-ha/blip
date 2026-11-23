@@ -50,3 +50,70 @@ describe("FP1 region definitions", () => {
     expect(regionsForCell(4, 7, regions)).toEqual([]);
   });
 });
+
+describe("FP1 Zigbee2MQTT configured regions parser", () => {
+  it("parses the real FP1 region configuration", async () => {
+    const { parseConfiguredRegions } = await import("../src/regions");
+
+    expect(
+      parseConfiguredRegions("1: y1=x1-4 (4 zones)", geometry)
+    ).toEqual([
+      {
+        region_id: 1,
+        zones: [
+          { x: 1, y: 1 },
+          { x: 2, y: 1 },
+          { x: 3, y: 1 },
+          { x: 4, y: 1 },
+        ],
+      },
+    ]);
+  });
+
+  it.each([
+    "1: y1=x1-4 (4 zones); 2: y2=x2-3 (2 zones)",
+    "1: y1=x1-4 (4 zones)\n2: y2=x2-3 (2 zones)",
+  ])("parses multiple configured regions: %s", async (raw) => {
+    const { parseConfiguredRegions } = await import("../src/regions");
+    const parsed = parseConfiguredRegions(raw, geometry);
+
+    expect(parsed).toHaveLength(2);
+    expect(parsed[0].region_id).toBe(1);
+    expect(parsed[0].zones).toHaveLength(4);
+    expect(parsed[1]).toEqual({
+      region_id: 2,
+      zones: [{ x: 2, y: 2 }, { x: 3, y: 2 }],
+    });
+  });
+
+  it("rejects duplicate region IDs", async () => {
+    const { parseConfiguredRegions } = await import("../src/regions");
+
+    expect(parseConfiguredRegions(
+      "1: y1=x1 (1 zone); 1: y2=x2 (1 zone)",
+      geometry
+    )).toEqual([]);
+  });
+
+  it("parses real Zigbee2MQTT multiple regions separated by pipe", async () => {
+    const { parseConfiguredRegions, regionsForCell } = await import("../src/regions");
+
+    const raw = "1: y1=x1-4 (4 zones) | 2: y7=x1-4 (4 zones)";
+    const parsed = parseConfiguredRegions(raw, geometry);
+
+    expect(parsed).toHaveLength(2);
+    expect(regionsForCell(1, 1, parsed)).toEqual([1]);
+    expect(regionsForCell(4, 1, parsed)).toEqual([1]);
+    expect(regionsForCell(1, 7, parsed)).toEqual([2]);
+    expect(regionsForCell(4, 7, parsed)).toEqual([2]);
+    expect(regionsForCell(2, 4, parsed)).toEqual([]);
+  });
+
+  it("rejects invalid coordinates", async () => {
+    const { parseConfiguredRegions } = await import("../src/regions");
+
+    expect(
+      parseConfiguredRegions("1: y1=x1-5 (5 zones)", geometry)
+    ).toEqual([]);
+  });
+});

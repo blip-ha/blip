@@ -20,6 +20,14 @@
         "presence": {
           "domain": "binary_sensor",
           "suffix": "_presence"
+        },
+        "action": {
+          "domain": "event",
+          "suffix": "_action"
+        },
+        "configured_regions": {
+          "domain": "sensor",
+          "suffix": "_configured_regions"
         }
       },
       "required": [

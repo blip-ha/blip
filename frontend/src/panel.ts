@@ -6,7 +6,8 @@ import { DEFAULT_LOST_S, DEFAULT_REARM_MIN, PROFILES } from "./profile";
 import { aimView, pillText } from "./aim";
 import { lastSeen, type HomeAssistant } from "./hass";
 import { styles } from "./styles";
-import { regionsForCell, type RegionDefinition } from "./regions";
+import { parseConfiguredRegions, regionsForCell, type RegionDefinition } from "./regions";
+import { updateRegionOccupancy, type RegionOccupancy } from "./region-occupancy";
 
 declare const __BLIP_VERSION__: string;
 
@@ -52,6 +53,7 @@ export class BlipPanel extends LitElement {
     narrow: { type: Boolean },
     selected: { state: true },
     aimOn: { state: true },
+    regionTestOn: { state: true },
     draft: { state: true },
     sel: { state: true },
     pendingMask: { state: true },
@@ -66,6 +68,7 @@ export class BlipPanel extends LitElement {
   declare narrow: boolean;
   declare private selected: string;
   declare private aimOn: boolean;
+  declare private regionTestOn: boolean;
   declare private draft: boolean[] | null; // edit mode when set
   declare private sel: number; // band selected in edit mode
   declare private pendingMask: number | null; // saved, waiting for the sensor to confirm
@@ -75,6 +78,7 @@ export class BlipPanel extends LitElement {
 
   private sensors: Sensor[] = [];
   private fp1Regions = new Map<string, RegionDefinition[]>();
+  private fp1Occupancy = new Map<string, RegionOccupancy>();
   private sensorsKey = ""; // what the list was built from
   private registries?: [unknown, unknown];
   private rearm?: number;
@@ -85,6 +89,7 @@ export class BlipPanel extends LitElement {
     this.narrow = false;
     this.selected = "";
     this.aimOn = false;
+    this.regionTestOn = false;
     this.draft = null;
     this.sel = 0;
     this.pendingMask = null;
@@ -101,6 +106,7 @@ export class BlipPanel extends LitElement {
   protected willUpdate(changed: PropertyValues<this>) {
     if (changed.has("hass") && this.hass) {
       this.refreshSensors();
+      this.refreshFp1Occupancy();
       this.checkSaveConfirmed();
     }
   }
@@ -130,6 +136,59 @@ export class BlipPanel extends LitElement {
     if (!this.sensors.some((s) => s.key === this.selected)) {
       const saved = store.get(SENSOR_KEY);
       this.selected = this.sensors.find((s) => s.key === saved)?.key ?? this.sensors[0]?.key ?? "";
+    }
+  }
+
+  /** Track live region events independently for every FP1 sensor. */
+  private refreshFp1Occupancy() {
+    if (!this.hass) return;
+
+    for (const sensor of this.sensors) {
+      if (sensor.profile.mode !== "regions" || !sensor.profile.regions) continue;
+
+      const presenceId = sensor.entities.presence;
+      const presenceState = presenceId
+        ? this.hass.states[presenceId]?.state
+        : undefined;
+
+      const entityId = sensor.entities.action;
+      const event = entityId ? this.hass.states[entityId] : undefined;
+
+      if (presenceState !== "on" && presenceState !== "off") {
+        this.fp1Occupancy.delete(sensor.key);
+        continue;
+      }
+
+      if (!event) {
+        this.fp1Occupancy.delete(sensor.key);
+        continue;
+      }
+
+      const previous = this.fp1Occupancy.get(sensor.key);
+      const next = updateRegionOccupancy(
+        previous,
+        event,
+        sensor.profile.regions.max_regions
+      );
+
+      this.fp1Occupancy.set(sensor.key, next);
+    }
+  }
+
+  private toggleRegionTest() {
+    const sensor = this.current();
+    if (!sensor || sensor.profile.mode !== "regions") return;
+
+    this.regionTestOn = !this.regionTestOn;
+
+    if (this.regionTestOn) {
+      const eventId = sensor.entities.action;
+      const event = eventId ? this.hass?.states[eventId] : undefined;
+
+      this.fp1Occupancy.set(sensor.key, {
+        lastEvent: event?.state ?? "",
+        occupied: new Set<number>(),
+      });
     }
   }
 
@@ -220,6 +279,7 @@ export class BlipPanel extends LitElement {
 
   private pick(e: Event) {
     this.stopAim();
+    this.regionTestOn = false;
     this.cancelEdit();
     this.pendingMask = null;
     this.selected = (e.target as HTMLSelectElement).value;
@@ -282,7 +342,29 @@ export class BlipPanel extends LitElement {
       })
     );
 
+    const regionsEntity = s.entities.configured_regions;
+    const regionsRaw = regionsEntity
+      ? this.hass?.states[regionsEntity]?.state
+      : undefined;
+
+    if (regionsRaw !== undefined && s.profile.regions) {
+      this.fp1Regions.set(
+        s.key,
+        parseConfiguredRegions(regionsRaw, s.profile.regions)
+      );
+    }
+
     const configuredRegions = this.fp1Regions.get(s.key) ?? [];
+    const sensorOnline = s.entities.presence
+      ? ["on", "off"].includes(this.hass?.states[s.entities.presence]?.state ?? "")
+      : false;
+    const occupiedRegions = sensorOnline
+      ? (this.fp1Occupancy.get(s.key)?.occupied ?? new Set<number>())
+      : new Set<number>();
+    const cellRegions = (x: number, y: number) =>
+      regionsForCell(x, y, configuredRegions);
+    const cellOccupied = (x: number, y: number) =>
+      this.regionTestOn && cellRegions(x, y).some((id) => occupiedRegions.has(id));
 
     const state = s.entities.presence
       ? this.hass!.states[s.entities.presence]?.state
@@ -306,6 +388,28 @@ export class BlipPanel extends LitElement {
       <section class="card">
         <p class="muted">Aqara FP1 · Regions</p>
       </section>
+      <section class="card aim">
+        <div class="aim-row">
+          <div>
+            <h2>Aim test</h2>
+            <p class="muted">See which FP1 regions respond as you walk the room.</p>
+          </div>
+          <button
+            class="switch ${this.regionTestOn ? "on" : ""}"
+            role="switch"
+            aria-checked=${this.regionTestOn ? "true" : "false"}
+            aria-label="Aim test"
+            ?disabled=${offline}
+            @click=${this.toggleRegionTest}
+          ><i></i></button>
+        </div>
+        ${this.regionTestOn
+          ? html`<div class="aim-state live">
+              <strong>Coverage test active</strong>
+              <span>Active regions: ${[...occupiedRegions].sort((a, b) => a - b).join(", ") || "None"}</span>
+            </div>`
+          : nothing}
+      </section>
       <section class="card">
         <h2>Detection grid</h2>
         <p class="muted">Sensor position</p>
@@ -316,10 +420,15 @@ export class BlipPanel extends LitElement {
           ${cells.map((cell) => html`
             <div
               class="card"
-              style="padding:12px 4px;text-align:center;margin:0"
+              style=${`padding:12px 4px;text-align:center;margin:0;${
+                cellOccupied(cell.x, cell.y)
+                  ? "background:#176b45;color:#fff;border-color:#28a76d;"
+                  : ""
+              }`}
               title="X${cell.x}, Y${cell.y}"
               data-region-cell="X${cell.x}Y${cell.y}"
-              data-regions="${regionsForCell(cell.x, cell.y, configuredRegions).join(",")}"
+              data-regions="${cellRegions(cell.x, cell.y).join(",")}"
+              data-occupied="${cellOccupied(cell.x, cell.y)}"
             >
               X${cell.x} Y${cell.y}
               ${regionsForCell(cell.x, cell.y, configuredRegions).length
@@ -332,7 +441,7 @@ export class BlipPanel extends LitElement {
           ${geometry.columns} × ${geometry.rows} cells ·
           Up to ${geometry.max_regions} regions
         </p>
-        <p class="muted">Grid preview only — cell occupancy is not available.</p>
+        <p class="muted">Green cells show live region occupancy while Aim test is active.</p>
       </section>
       <section class="card status ${offline ? "" : presence ? "present" : ""}">
         <div class="icon" aria-hidden="true">${presence ? "●" : "○"}</div>

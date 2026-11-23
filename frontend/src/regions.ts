@@ -58,3 +58,50 @@ export function regionsForCell(
     .map((region) => region.region_id)
     .sort((a, b) => a - b);
 }
+
+/**
+ * Parse Zigbee2MQTT Aqara FP1 configured_regions.
+ * Example: "1: y1=x1-4 (4 zones)"
+ */
+export function parseConfiguredRegions(
+  raw: string,
+  geometry: RegionsSpec
+): RegionDefinition[] {
+  if (!raw.trim()) return [];
+
+  const result: RegionDefinition[] = [];
+  const ids = new Set<number>();
+
+  for (const entry of raw.split(/;|\n|\|/)) {
+    const match = entry.trim().match(
+      /^(\d+):\s*(.+?)\s*\(\d+ zones?\)$/
+    );
+    if (!match) return [];
+
+    const region_id = Number(match[1]);
+    const zones: RegionCell[] = [];
+
+    for (const part of match[2].split(/,\s*/)) {
+      const cell = part.trim().match(/^y(\d+)=x(\d+)(?:-(\d+))?$/);
+      if (!cell) return [];
+
+      const y = Number(cell[1]);
+      const start = Number(cell[2]);
+      const end = cell[3] ? Number(cell[3]) : start;
+
+      if (end < start || end - start >= geometry.columns) return [];
+
+      for (let x = start; x <= end; x++) {
+        zones.push({ x, y });
+      }
+    }
+
+    const region = { region_id, zones };
+    if (ids.has(region_id) || !validRegion(region, geometry)) return [];
+
+    ids.add(region_id);
+    result.push(region);
+  }
+
+  return result;
+}
