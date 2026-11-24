@@ -15,7 +15,6 @@ body:
       options:
         - "Aqara FP1E (Band, Zigbee2MQTT)"
         - "Aqara FP310 (Band, Zigbee2MQTT)"
-        - "Aqara FP1 (Regions, Zigbee2MQTT)"
         - "Aqara P1 motion sensor (Cone, Zigbee2MQTT)"
         - "Aqara High Precision motion sensor (RTCGQ13LM) (Cone, Zigbee2MQTT)"
         - "Aqara P2 motion sensor (Cone, Thread/Matter)"

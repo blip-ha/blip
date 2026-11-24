@@ -15,7 +15,6 @@ body:
       options:
         - "Aqara FP1E (Profile file)"
         - "Aqara FP310 (Profile file)"
-        - "Aqara FP1 (Issue first: new Regions mode)"
         - "Aqara P1 motion sensor (Issue first: new Cone mode)"
         - "Aqara High Precision motion sensor (RTCGQ13LM) (Issue first: new Cone mode)"
         - "Aqara P2 motion sensor (Issue first: new Cone mode, Thread/Matter)"
