@@ -534,12 +534,12 @@ function we({ band: e, angleDeg: t, enabled: n, presence: r, active: i, lost: a,
 var X = (e, t, n, r, i) => {
 	let a = (e) => e * Math.PI / 180, o = e + n * Math.cos(a(r)), s = t + n * Math.sin(a(r)), c = e + n * Math.cos(a(i)), l = t + n * Math.sin(a(i)), u = +(((i - r) % 360 + 360) % 360 > 180);
 	return `M${o.toFixed(2)} ${s.toFixed(2)}A${n} ${n} 0 ${u} 1 ${c.toFixed(2)} ${l.toFixed(2)}`;
-}, Te = 38, Z = 64, Ee = `M4 6L4 ${Z} ${X(Te, Z, 34, 180, 450)}`, De = [
+}, Z = 38, Q = 64, Te = `M4 6L4 ${Q} ${X(Z, Q, 34, 180, 450)}`, Ee = [
 	[12, 1],
 	[17, .75],
 	[22, .55],
 	[27, .4]
-], Oe = (e, t = "blip") => P`<svg
+], De = (e, t = "blip") => P`<svg
   width=${Math.round(e * 80 / 106)}
   height=${e}
   viewBox="-2 0 80 106"
@@ -548,11 +548,11 @@ var X = (e, t, n, r, i) => {
   aria-hidden=${t ? L : "true"}
 >
   <g fill="none" stroke-linecap="round">
-    <path d=${Ee} stroke="#c2410c" stroke-width="8" />
-    ${De.map(([e, t]) => F`<path d=${X(Te, Z, e, 270, 360)} stroke="#c084fc" stroke-opacity=${t} stroke-width="3.2" />`)}
+    <path d=${Te} stroke="#c2410c" stroke-width="8" />
+    ${Ee.map(([e, t]) => F`<path d=${X(Z, Q, e, 270, 360)} stroke="#c084fc" stroke-opacity=${t} stroke-width="3.2" />`)}
   </g>
-  <circle cx=${Te} cy=${Z} r="6.5" fill="#f3e8ff" />
-</svg>`, ke = F`<svg viewBox="0 0 28 28" class="radar" aria-hidden="true">
+  <circle cx=${Z} cy=${Q} r="6.5" fill="#f3e8ff" />
+</svg>`, Oe = F`<svg viewBox="0 0 28 28" class="radar" aria-hidden="true">
   <g fill="none" stroke-linecap="round">
     ${[
 	[8, 1],
@@ -561,29 +561,29 @@ var X = (e, t, n, r, i) => {
 ].map(([e, t]) => F`<path d=${X(6, 22, e, -85, -5)} stroke="#c084fc" stroke-opacity=${t} stroke-width="2.4" />`)}
   </g>
   <circle cx="6" cy="22" r="4.6" fill="#a78bfa" />
-</svg>`, Ae = () => P`<span class="wordmark" role="img" aria-label="blip"
-  ><span class="b">b</span><span>l</span><span class="i">ı<span class="dot">${ke}</span></span
+</svg>`, ke = () => P`<span class="wordmark" role="img" aria-label="blip"
+  ><span class="b">b</span><span>l</span><span class="i">ı<span class="dot">${Oe}</span></span
   ><span>p</span></span
->`, je = "\n  .wordmark { display: inline-flex; align-items: baseline; font-family: Inter, system-ui, sans-serif; font-weight: 700; line-height: 1; letter-spacing: -0.035em; color: #f4f0ff; }\n  .wordmark .b { color: #c2410c; }\n  .wordmark .i { position: relative; display: inline-block; margin-right: 0.03em; }\n  .wordmark .dot { position: absolute; left: 50%; margin-left: -0.075em; top: -0.075em; }\n  .wordmark .radar { height: 0.35em; width: auto; display: block; overflow: visible; }\n", Q = {
+>`, Ae = "\n  .wordmark { display: inline-flex; align-items: baseline; font-family: Inter, system-ui, sans-serif; font-weight: 700; line-height: 1; letter-spacing: -0.035em; color: #f4f0ff; }\n  .wordmark .b { color: #c2410c; }\n  .wordmark .i { position: relative; display: inline-block; margin-right: 0.03em; }\n  .wordmark .dot { position: absolute; left: 50%; margin-left: -0.075em; top: -0.075em; }\n  .wordmark .radar { height: 0.35em; width: auto; display: block; overflow: visible; }\n", $ = {
 	band: { required: ["range", "presence"] },
 	regions: { required: ["presence"] }
-}, Me = (e, t) => !!e && !!t && e.trim().toLowerCase() === t.trim().toLowerCase();
-function Ne(e, t) {
-	return Object.keys(t).every((n) => Me(e[n], t[n]));
+}, je = (e, t) => !!e && !!t && e.trim().toLowerCase() === t.trim().toLowerCase();
+function Me(e, t) {
+	return Object.keys(t).every((n) => je(e[n], t[n]));
 }
-function Pe(e, t, n) {
+function Ne(e, t, n) {
 	return !e.startsWith(n.domain + ".") || !e.endsWith(n.suffix) ? !1 : n.max === void 0 || Number(t?.attributes.max) === n.max;
 }
-function Fe(e, t, n, r) {
+function Pe(e, t, n, r) {
 	let i = {};
 	for (let [a, o] of Object.entries(e.entities)) {
-		let e = t.filter((e) => Pe(e, n[e], o));
+		let e = t.filter((e) => Ne(e, n[e], o));
 		i[a] = r && e.find((e) => e === `${o.domain}.${r}${o.suffix}`) || e[0];
 	}
-	return (Q[e.mode]?.required ?? []).every((e) => i[e]) ? i : void 0;
+	return ($[e.mode]?.required ?? []).every((e) => i[e]) ? i : void 0;
 }
-function Ie(e, t) {
-	let n = t.filter((e) => !!Q[e.mode]), { states: r } = e, i = e.entities ?? {}, a = e.devices ?? {}, o = /* @__PURE__ */ new Map();
+function Fe(e, t) {
+	let n = t.filter((e) => !!$[e.mode]), { states: r } = e, i = e.entities ?? {}, a = e.devices ?? {}, o = /* @__PURE__ */ new Map();
 	for (let e of Object.values(i)) {
 		if (!e.device_id) continue;
 		let t = o.get(e.device_id) ?? [];
@@ -592,9 +592,9 @@ function Ie(e, t) {
 	for (let [e, t] of o) o.set(e, t.filter((e) => r[e]));
 	let s = [], c = /* @__PURE__ */ new Set(), l = (e) => a[e]?.name_by_user || a[e]?.name || "";
 	for (let [e, t] of Object.entries(a)) {
-		let i = n.find((e) => e.match.devices.some((e) => Ne(t, e)));
+		let i = n.find((e) => e.match.devices.some((e) => Me(t, e)));
 		if (!i) continue;
-		let a = Fe(i, o.get(e) ?? [], r);
+		let a = Pe(i, o.get(e) ?? [], r);
 		a && (s.push({
 			key: e,
 			name: l(e) || i.name,
@@ -605,7 +605,7 @@ function Ie(e, t) {
 	}
 	for (let e of n) {
 		if (!e.entities.range) continue;
-		let t = Q[e.mode].required[0], n = e.entities[t], a = Object.keys(r).filter((e) => Pe(e, r[e], n)).sort(), u = a.map((e) => e.slice(n.domain.length + 1, -n.suffix.length));
+		let t = $[e.mode].required[0], n = e.entities[t], a = Object.keys(r).filter((e) => Ne(e, r[e], n)).sort(), u = a.map((e) => e.slice(n.domain.length + 1, -n.suffix.length));
 		a.forEach((t, n) => {
 			let a = i[t]?.device_id ?? null;
 			if (a && c.has(a)) return;
@@ -618,7 +618,7 @@ function Ie(e, t) {
 					return n.startsWith(d + "_") && !e.some((e) => n.startsWith(e + "_"));
 				});
 			}
-			let p = Fe(e, f, r, a ? void 0 : d);
+			let p = Pe(e, f, r, a ? void 0 : d);
 			if (!p) return;
 			let m = a ?? d;
 			if (s.some((e) => e.key === m)) return;
@@ -635,7 +635,7 @@ function Ie(e, t) {
 	return s.sort((e, t) => e.name.localeCompare(t.name) || e.key.localeCompare(t.key));
 }
 // src/profile.ts
-var Le = /* #__PURE__ */ Object.assign({
+var Ie = /* #__PURE__ */ Object.assign({
 	"../../profiles/aqara_fp1.json": {
 		$schema: "./schema.json",
 		id: "aqara_fp1",
@@ -726,11 +726,11 @@ var Le = /* #__PURE__ */ Object.assign({
 		}
 	}
 });
-function Re(e) {
+function Le(e) {
 	try {
 		let t = e;
 		if (!t || typeof t.id != "string" || typeof t.name != "string") return !1;
-		let n = Q[t.mode];
+		let n = $[t.mode];
 		if (!n || !t.entities || !t.match?.devices?.length || !t.match.devices.every((e) => e && (e.model || e.model_id)) || !n.required.every((e) => t.entities[e]?.domain && t.entities[e]?.suffix) || !(t.field_of_view?.angle_deg > 0 && t.field_of_view.angle_deg <= 180)) return !1;
 		if (t.mode === "band") {
 			let e = t.band;
@@ -749,12 +749,12 @@ function Re(e) {
 		return !1;
 	}
 }
-var ze = Object.values(Le).filter((e) => {
-	let t = Re(e);
+var Re = Object.values(Ie).filter((e) => {
+	let t = Le(e);
 	return t || console.warn("Blip: skipping an invalid sensor profile", e?.id), t;
 }).sort((e, t) => e.name.localeCompare(t.name) || e.id.localeCompare(t.id));
 // src/aim.ts
-function Be({ band: e, lostMs: t, aimOn: n, aimStart: r, now: i, presence: a, enabled: o, distance: s }) {
+function ze({ band: e, lostMs: t, aimOn: n, aimStart: r, now: i, presence: a, enabled: o, distance: s }) {
 	let c = Math.max(0, Math.round((i - r) / 1e3)), l = n && !!s && s.seenAt >= r;
 	if (!l) return {
 		live: !1,
@@ -768,8 +768,8 @@ function Be({ band: e, lostMs: t, aimOn: n, aimStart: r, now: i, presence: a, en
 		waitedS: c
 	};
 }
-var Ve = (e) => q(e).toFixed(1);
-function He({ band: e, editing: t, draftOn: n, pending: r, aimOn: i, known: a, onCount: o, maxFt: s, view: c }) {
+var Be = (e) => q(e).toFixed(1);
+function Ve({ band: e, editing: t, draftOn: n, pending: r, aimOn: i, known: a, onCount: o, maxFt: s, view: c }) {
 	if (t) return `Editing · ${n} of ${e.count} bands on`;
 	if (r) return "Saved · waiting for sensor to confirm";
 	if (!i) return a ? `${o}/${e.count} bands · ${s.toFixed(1)} ft` : "Reading bands…";
@@ -779,10 +779,10 @@ function He({ band: e, editing: t, draftOn: n, pending: r, aimOn: i, known: a, o
 	if (c.lost === "quiet") return "Lost you · keep moving to confirm";
 	if (c.active === void 0) return "No one in range";
 	let l = c.active;
-	return `Band ${l + 1} · ${Ve(l * e.size_m)}–${Ve((l + 1) * e.size_m)} ft`;
+	return `Band ${l + 1} · ${Be(l * e.size_m)}–${Be((l + 1) * e.size_m)} ft`;
 }
 // src/hass.ts
-var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? new Date(e.last_reported).getTime() : 0), We = [a(je), o`
+var He = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? new Date(e.last_reported).getTime() : 0), Ue = [a(Ae), o`
     :host {
       --bg: #160b29;
       --card: #22143d;
@@ -894,12 +894,17 @@ var Ue = (e) => Math.max(new Date(e.last_updated).getTime(), e.last_reported ? n
     .aim-state.wait { background: #3c3489; color: var(--soft); }
     .aim-state.live { background: #4c1d95; color: #ede9fe; }
     .aim-note { margin-top: 8px; }
+    .region-grid { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 6px; margin: 12px 0 8px; }
+    .region-grid .cell { min-height: 44px; padding: 6px 2px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; font-size: 12px; color: var(--muted); background: var(--bg); border: 1px dashed var(--line); transition: background 0.2s, border-color 0.2s; }
+    .region-grid .cell small { font-size: 10px; opacity: 0.9; }
+    .region-grid .cell.in-region { background: #5b4a86; color: var(--text); border: 1px solid var(--line-2); }
+    .region-grid .cell.occupied { background: var(--accent); color: #fff; border: 1px solid #e9d5ff; box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.3); }
     .pill.hot { border-color: var(--accent); color: #f3e8ff; }
     .pill.lost { border-color: #ea580c; color: #fed7aa; background: #3a1708; }
 
   `];
 // src/regions.ts
-function Ge(e, t) {
+function We(e, t) {
 	if (!Number.isInteger(e.region_id) || e.region_id < 1 || e.region_id > t.max_regions || !Array.isArray(e.zones)) return !1;
 	let n = /* @__PURE__ */ new Set();
 	for (let r of e.zones) {
@@ -910,7 +915,7 @@ function Ge(e, t) {
 	}
 	return !0;
 }
-function $(e, t, n) {
+function Ge(e, t, n) {
 	return n.filter((n) => n.zones.some((n) => n.x === e && n.y === t)).map((e) => e.region_id).sort((e, t) => e - t);
 }
 function Ke(e, t) {
@@ -934,13 +939,39 @@ function Ke(e, t) {
 			region_id: a,
 			zones: o
 		};
-		if (r.has(a) || !Ge(s, t)) return [];
+		if (r.has(a) || !We(s, t)) return [];
 		r.add(a), n.push(s);
 	}
 	return n;
 }
+// src/regions-view.ts
+function qe({ spec: e, regions: t, occupied: n, live: r }) {
+	let i = Array.from({ length: e.columns * e.rows }, (i, a) => {
+		let o = a % e.columns + 1, s = Math.floor(a / e.columns) + 1, c = Ge(o, s, t), l = r && c.some((e) => n.has(e));
+		return P`<div
+      class=${[
+			"cell",
+			c.length ? "in-region" : "",
+			l ? "occupied" : ""
+		].filter(Boolean).join(" ")}
+      title="X${o}, Y${s}"
+      data-region-cell="X${o}Y${s}"
+      data-regions=${c.join(",")}
+      data-occupied=${String(l)}
+    >
+      <span>X${o} Y${s}</span>
+      ${c.length ? P`<small>Region ${c.join(", ")}</small>` : L}
+    </div>`;
+	});
+	return P`<div
+    class="region-grid"
+    style="--cols: ${e.columns}"
+    role="group"
+    aria-label="Sensor detection grid, ${e.columns} by ${e.rows} cells"
+  >${i}</div>`;
+}
 // src/region-occupancy.ts
-function qe(e, t, n) {
+function Je(e, t, n) {
 	let r = e ?? {
 		lastEvent: "",
 		occupied: /* @__PURE__ */ new Set()
@@ -962,23 +993,23 @@ function qe(e, t, n) {
 	};
 }
 // src/panel.ts
-var Je = "blip.sensor", Ye = {
+var Ye = "blip.sensor", Xe = {
 	zigbee2mqtt: "Zigbee2MQTT",
 	zha: "ZHA",
 	matter: "Matter"
-}, Xe = "https://github.com/blip-ha/blip/issues/new";
-function Ze(e, t, n, r) {
+}, Ze = "https://github.com/blip-ha/blip/issues/new";
+function Qe(e, t, n, r) {
 	let i = new URLSearchParams({
 		template: "bug_report.yml",
 		blip: `v${e}`
 	});
 	if (t && i.set("ha", t), n) {
 		let e = n.profile.name, t = r && !e.toLowerCase().includes(r.toLowerCase()) ? `${e} (${r})` : e;
-		i.set("sensor", `${t} via ${Ye[n.profile.integration]}`);
+		i.set("sensor", `${t} via ${Xe[n.profile.integration]}`);
 	}
-	return `${Xe}?${i}`;
+	return `${Ze}?${i}`;
 }
-var Qe = {
+var $e = {
 	get: (e) => {
 		try {
 			return localStorage.getItem(e);
@@ -991,7 +1022,7 @@ var Qe = {
 			localStorage.setItem(e, t);
 		} catch {}
 	}
-}, $e = class extends W {
+}, et = class extends W {
 	static {
 		this.properties = {
 			hass: { attribute: !1 },
@@ -1008,7 +1039,7 @@ var Qe = {
 		};
 	}
 	static {
-		this.styles = We;
+		this.styles = Ue;
 	}
 	constructor() {
 		super(), this.sensors = [], this.fp1Regions = /* @__PURE__ */ new Map(), this.fp1Occupancy = /* @__PURE__ */ new Map(), this.sensorsKey = "", this.narrow = !1, this.selected = "", this.aimOn = !1, this.regionTestOn = !1, this.draft = null, this.sel = 0, this.pendingMask = null, this.saveError = "", this.aimStart = 0, this.now = Date.now();
@@ -1017,7 +1048,7 @@ var Qe = {
 		super.disconnectedCallback(), this.stopAim();
 	}
 	willUpdate(e) {
-		e.has("hass") && this.hass && (this.refreshSensors(), this.refreshFp1Occupancy(), this.checkSaveConfirmed());
+		e.has("hass") && this.hass && (this.refreshSensors(), this.refreshFp1Regions(), this.refreshFp1Occupancy(), this.checkSaveConfirmed());
 	}
 	checkSaveConfirmed() {
 		if (this.pendingMask === null) return;
@@ -1026,9 +1057,17 @@ var Qe = {
 	}
 	refreshSensors() {
 		let e = this.hass, t = Object.keys(e.states).length + "";
-		if ((this.registries?.[0] !== e.entities || this.registries?.[1] !== e.devices || t !== this.sensorsKey) && (this.registries = [e.entities, e.devices], this.sensorsKey = t, this.sensors = Ie(e, ze), !this.sensors.some((e) => e.key === this.selected))) {
-			let e = Qe.get(Je);
+		if ((this.registries?.[0] !== e.entities || this.registries?.[1] !== e.devices || t !== this.sensorsKey) && (this.registries = [e.entities, e.devices], this.sensorsKey = t, this.sensors = Fe(e, Re), !this.sensors.some((e) => e.key === this.selected))) {
+			let e = $e.get(Ye);
 			this.selected = this.sensors.find((t) => t.key === e)?.key ?? this.sensors[0]?.key ?? "";
+		}
+	}
+	refreshFp1Regions() {
+		for (let e of this.sensors) {
+			let t = e.profile.regions, n = e.entities.configured_regions;
+			if (e.profile.mode !== "regions" || !t || !n) continue;
+			let r = this.hass.states[n]?.state;
+			r !== void 0 && this.fp1Regions.set(e.key, Ke(r, t));
 		}
 	}
 	refreshFp1Occupancy() {
@@ -1039,7 +1078,7 @@ var Qe = {
 				this.fp1Occupancy.delete(e.key);
 				continue;
 			}
-			let a = qe(this.fp1Occupancy.get(e.key), i, e.profile.regions.max_regions);
+			let a = Je(this.fp1Occupancy.get(e.key), i, e.profile.regions.max_regions);
 			this.fp1Occupancy.set(e.key, a);
 		}
 	}
@@ -1109,7 +1148,7 @@ var Qe = {
 		}
 	}
 	pick(e) {
-		this.stopAim(), this.regionTestOn = !1, this.cancelEdit(), this.pendingMask = null, this.selected = e.target.value, Qe.set(Je, this.selected);
+		this.stopAim(), this.regionTestOn = !1, this.cancelEdit(), this.pendingMask = null, this.selected = e.target.value, $e.set(Ye, this.selected);
 	}
 	toggleMenu() {
 		this.dispatchEvent(new Event("hass-toggle-menu", {
@@ -1122,14 +1161,14 @@ var Qe = {
       ${this.narrow ? P`<button class="menu" aria-label="Open sidebar" @click=${this.toggleMenu}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z" fill="currentColor" /></svg>
           </button>` : L}
-      <h1 class="title">${Ae()}</h1>
+      <h1 class="title">${ke()}</h1>
     </header>`;
 	}
 	renderFooter() {
 		let e = this.current(), t = e ? this.hass?.devices?.[e.key]?.model : void 0;
-		return P`<div class="footmark">${Oe(44, "blip")}</div>
+		return P`<div class="footmark">${De(44, "blip")}</div>
       <p class="ver">v${"0.4.2"}</p>
-      <p class="report"><a href=${Ze("0.4.2", this.hass?.config?.version, e, t)} target="_blank" rel="noopener noreferrer">Report a problem</a></p>`;
+      <p class="report"><a href=${Qe("0.4.2", this.hass?.config?.version, e, t)} target="_blank" rel="noopener noreferrer">Report a problem</a></p>`;
 	}
 	render() {
 		if (!this.hass) return P`<main>${this.renderHeader()}<div class="card"><p class="muted">Connecting to Home Assistant…</p></div></main>`;
@@ -1140,19 +1179,14 @@ var Qe = {
           <h2>No supported sensor found</h2>
           <p class="muted">Blip works with:</p>
           <ul class="supported">
-            ${ze.map((e) => P`<li>${e.name} <span class="muted">(${Ye[e.integration]})</span></li>`)}
+            ${Re.map((e) => P`<li>${e.name} <span class="muted">(${Xe[e.integration]})</span></li>`)}
           </ul>
         </div>
         ${this.renderFooter()}
       </main>`;
 	}
 	renderRegions(e) {
-		let t = e.profile.regions, n = Array.from({ length: t.columns * t.rows }, (e, n) => ({
-			x: n % t.columns + 1,
-			y: Math.floor(n / t.columns) + 1
-		})), r = e.entities.configured_regions, i = r ? this.hass?.states[r]?.state : void 0;
-		i !== void 0 && e.profile.regions && this.fp1Regions.set(e.key, Ke(i, e.profile.regions));
-		let a = this.fp1Regions.get(e.key) ?? [], o = e.entities.presence && ["on", "off"].includes(this.hass?.states[e.entities.presence]?.state ?? "") ? this.fp1Occupancy.get(e.key)?.occupied ?? /* @__PURE__ */ new Set() : /* @__PURE__ */ new Set(), s = (e, t) => $(e, t, a), c = (e, t) => this.regionTestOn && s(e, t).some((e) => o.has(e)), l = e.entities.presence ? this.hass.states[e.entities.presence]?.state : void 0, u = l === "on", d = l !== "on" && l !== "off";
+		let t = e.profile.regions, n = e.entities.presence ? this.hass.states[e.entities.presence]?.state : void 0, r = n === "on", i = n !== "on" && n !== "off", a = i ? /* @__PURE__ */ new Set() : this.fp1Occupancy.get(e.key)?.occupied ?? /* @__PURE__ */ new Set();
 		return P`<main>
       ${this.renderHeader()}
       <label class="sensor">
@@ -1165,67 +1199,52 @@ var Qe = {
             </span>` : P`<span class="picker single">${e.name}</span>`}
       </label>
       <section class="card">
-        <p class="muted">Aqara FP1 · Regions</p>
+        <p class="muted">${e.profile.name} · Regions</p>
       </section>
       <section class="card aim">
         <div class="aim-row">
           <div>
             <h2>Aim test</h2>
-            <p class="muted">See which FP1 regions respond as you walk the room.</p>
+            <p class="muted">See which regions respond as you walk the room.</p>
           </div>
           <button
             class="switch ${this.regionTestOn ? "on" : ""}"
             role="switch"
             aria-checked=${this.regionTestOn ? "true" : "false"}
             aria-label="Aim test"
-            ?disabled=${d}
+            ?disabled=${i}
             @click=${this.toggleRegionTest}
           ><i></i></button>
         </div>
         ${this.regionTestOn ? P`<div class="aim-state live">
               <strong>Coverage test active</strong>
-              <span>Active regions: ${[...o].sort((e, t) => e - t).join(", ") || "None"}</span>
+              <span>Active regions: ${[...a].sort((e, t) => e - t).join(", ") || "None"}</span>
             </div>` : L}
       </section>
       <section class="card">
         <h2>Detection grid</h2>
         <p class="muted">Sensor position</p>
-        <div
-          style="display:grid;grid-template-columns:repeat(${t.columns},minmax(0,1fr));gap:6px;margin:16px 0"
-          aria-label="FP1 detection grid"
-        >
-          ${n.map((e) => P`
-            <div
-              class="card"
-              style=${`padding:12px 4px;text-align:center;margin:0;${c(e.x, e.y) ? "background:#176b45;color:#fff;border-color:#28a76d;" : ""}`}
-              title="X${e.x}, Y${e.y}"
-              data-region-cell="X${e.x}Y${e.y}"
-              data-regions="${s(e.x, e.y).join(",")}"
-              data-occupied="${c(e.x, e.y)}"
-            >
-              X${e.x} Y${e.y}
-              ${$(e.x, e.y, a).length ? P`<small>Region ${$(e.x, e.y, a).join(", ")}</small>` : L}
-            </div>
-          `)}
-        </div>
-        <p class="muted">
-          ${t.columns} × ${t.rows} cells ·
-          Up to ${t.max_regions} regions
-        </p>
-        <p class="muted">Green cells show live region occupancy while Aim test is active.</p>
+        ${qe({
+			spec: t,
+			regions: this.fp1Regions.get(e.key) ?? [],
+			occupied: a,
+			live: this.regionTestOn
+		})}
+        <p class="muted">${t.columns} × ${t.rows} cells · Up to ${t.max_regions} regions</p>
+        <p class="muted">Lit cells show live region occupancy while Aim test is active.</p>
       </section>
-      <section class="card status ${d ? "" : u ? "present" : ""}">
-        <div class="icon" aria-hidden="true">${u ? "●" : "○"}</div>
+      <section class="card status ${i ? "" : r ? "present" : ""}">
+        <div class="icon" aria-hidden="true">${r ? "●" : "○"}</div>
         <div>
-          <h2>${d ? "Sensor offline" : u ? "Presence detected" : "No presence detected"}</h2>
-          <p class="muted">mmWave ${d ? "unavailable" : u ? "on" : "off"}</p>
+          <h2>${i ? "Sensor offline" : r ? "Presence detected" : "No presence detected"}</h2>
+          <p class="muted">mmWave ${i ? "unavailable" : r ? "on" : "off"}</p>
         </div>
       </section>
       ${this.renderFooter()}
     </main>`;
 	}
 	renderSensor(e) {
-		let { profile: t } = e, n = t.band, r = e.entities, i = (e) => e ? this.hass.states[e] : void 0, a = i(r.range)?.state, o = Number(a), s = a !== void 0 && a !== "" && !Number.isNaN(o), c = s ? J(o, n.count) : Array(n.count).fill(!0), l = this.draft !== null, u = l ? this.draft : this.pendingMask === null ? c : J(this.pendingMask, n.count), d = l ? this.draft.filter(Boolean).length : 0, f = l && Y(this.draft) !== Y(c), p = c.filter(Boolean).length, m = i(r.presence)?.state === "on", h = i(r.pir)?.state === "on", g = i(r.battery)?.state, _ = i(r.presence)?.state === "unavailable", ee = q((c.lastIndexOf(!0) + 1) * n.size_m), v = i(r.distance), y = Number(v?.state), b = Be({
+		let { profile: t } = e, n = t.band, r = e.entities, i = (e) => e ? this.hass.states[e] : void 0, a = i(r.range)?.state, o = Number(a), s = a !== void 0 && a !== "" && !Number.isNaN(o), c = s ? J(o, n.count) : Array(n.count).fill(!0), l = this.draft !== null, u = l ? this.draft : this.pendingMask === null ? c : J(this.pendingMask, n.count), d = l ? this.draft.filter(Boolean).length : 0, f = l && Y(this.draft) !== Y(c), p = c.filter(Boolean).length, m = i(r.presence)?.state === "on", h = i(r.pir)?.state === "on", g = i(r.battery)?.state, _ = i(r.presence)?.state === "unavailable", ee = q((c.lastIndexOf(!0) + 1) * n.size_m), v = i(r.distance), y = Number(v?.state), b = ze({
 			band: n,
 			lostMs: (t.behavior.lost_after_s ?? 3) * 1e3,
 			aimOn: this.aimOn,
@@ -1235,9 +1254,9 @@ var Qe = {
 			enabled: c,
 			distance: v && !Number.isNaN(y) ? {
 				meters: y,
-				seenAt: Ue(v)
+				seenAt: He(v)
 			} : void 0
-		}), { live: x, active: S, lost: C, waitedS: w } = b, T = He({
+		}), { live: x, active: S, lost: C, waitedS: w } = b, T = Ve({
 			band: n,
 			editing: l,
 			draftOn: d,
@@ -1344,5 +1363,5 @@ var Qe = {
     </main>`;
 	}
 };
-customElements.get("blip-panel") || customElements.define("blip-panel", $e);
-export { $e as BlipPanel, Ze as reportUrl };
+customElements.get("blip-panel") || customElements.define("blip-panel", et);
+export { et as BlipPanel, Qe as reportUrl };

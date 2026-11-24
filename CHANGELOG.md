@@ -2,6 +2,11 @@
 
 All notable changes to Blip. Versions follow the integration's `manifest.json`.
 
+## Unreleased
+
+### Added
+- **Aqara FP1 (Zigbee2MQTT) and Regions mode,** thanks to viko-repo: the FP1's 4 × 7 detection grid with its configured regions, and an Aim test that lights each region's cells as you walk through it. Works with more than one FP1. Diagnostics recognize the FP1 too.
+
 ## 0.4.2 (2026-11-22)
 
 ### Changed

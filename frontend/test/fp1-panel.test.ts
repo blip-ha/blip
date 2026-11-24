@@ -150,7 +150,7 @@ describe("Aqara FP1 Regions view", () => {
 
   it("does not claim cell occupancy from global presence", () => {
     expect(el.shadowRoot!.textContent).toContain(
-      "Green cells show live region occupancy while Aim test is active."
+      "Lit cells show live region occupancy while Aim test is active."
     );
     const cells = [...el.shadowRoot!.querySelectorAll("[data-region-cell]")];
     expect(cells).toHaveLength(28);
