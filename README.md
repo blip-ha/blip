@@ -109,6 +109,8 @@ npm test
 
 Built with Claude; reviewed and tested on real hardware by the maintainer.
 
+- Aqara FP1 support and Regions mode: [viko-repo](https://github.com/viko-repo)
+
 ## License
 
 [Apache 2.0](https://github.com/blip-ha/blip/blob/main/LICENSE)
