@@ -114,6 +114,11 @@ export const styles = [unsafeCSS(brandStyles), css`
     .aim-state.wait { background: #3c3489; color: var(--soft); }
     .aim-state.live { background: #4c1d95; color: #ede9fe; }
     .aim-note { margin-top: 8px; }
+    .region-grid { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 6px; margin: 12px 0 8px; }
+    .region-grid .cell { min-height: 44px; padding: 6px 2px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; text-align: center; font-size: 12px; color: var(--muted); background: var(--bg); border: 1px dashed var(--line); transition: background 0.2s, border-color 0.2s; }
+    .region-grid .cell small { font-size: 10px; opacity: 0.9; }
+    .region-grid .cell.in-region { background: #5b4a86; color: var(--text); border: 1px solid var(--line-2); }
+    .region-grid .cell.occupied { background: var(--accent); color: #fff; border: 1px solid #e9d5ff; box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.3); }
     .pill.hot { border-color: var(--accent); color: #f3e8ff; }
     .pill.lost { border-color: #ea580c; color: #fed7aa; background: #3a1708; }
 

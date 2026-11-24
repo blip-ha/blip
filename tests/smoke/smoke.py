@@ -11,6 +11,7 @@ Usage: python tests/smoke/smoke.py
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import shutil
 import subprocess
@@ -21,6 +22,8 @@ from pathlib import Path
 import aiohttp
 
 ROOT = Path(__file__).resolve().parents[2]
+# Diagnostics should list exactly the profiles Blip ships, whichever those are.
+BUNDLED = [p["id"] for p in json.loads((ROOT / "custom_components/blip/frontend/profiles.json").read_text())["profiles"]]
 PORT = int(os.environ.get("BLIP_SMOKE_PORT", "18123"))
 BASE = f"http://127.0.0.1:{PORT}"
 CLIENT_ID = f"{BASE}/"
@@ -110,7 +113,7 @@ async def run(session: aiohttp.ClientSession) -> None:
         if r.status != 200:
             fail(f"diagnostics download failed ({r.status})")
         diag = (await r.json())["data"]
-        if not diag.get("blip_version") or diag.get("profiles_bundled") != ["aqara_fp300"]:
+        if not diag.get("blip_version") or diag.get("profiles_bundled") != BUNDLED or "aqara_fp300" not in BUNDLED:
             fail(f"unexpected diagnostics: {diag}")
 
     async with session.get(f"{BASE}/api/config", headers=auth) as r:
