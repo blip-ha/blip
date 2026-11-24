@@ -7,6 +7,8 @@ name: Contributor guard
 #      get the maintainer-approved label.
 #   2. Testing details in the pull request text: Home Assistant version, integration
 #      (Zigbee2MQTT/ZHA/Matter) and a walk-test screen recording.
+# The maintainer-approved label skips both: it means the maintainer has reviewed the change
+# and its testing directly, so the checklist has done its job.
 #
 # Why pull_request_target: this workflow and its script always come from the base branch, so a
 # pull request can't edit or switch off the guard. It never checks out or runs the pull
@@ -47,6 +49,7 @@ jobs:
             exit 1
           }
       - name: Check the testing details in the pull request text
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'maintainer-approved') }}
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
