@@ -114,7 +114,9 @@
           "battery",
           "track",
           "motion",
-          "interval"
+          "interval",
+          "action",
+          "configured_regions"
         ]
       }
     },
@@ -189,6 +191,33 @@
           "exclusiveMinimum": 0
         }
       }
+    },
+    "regions": {
+      "description": "Geometry for region-based sensors.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "columns",
+        "rows",
+        "max_regions"
+      ],
+      "properties": {
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "max_regions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        }
+      }
     }
   },
   "allOf": [
@@ -213,6 +242,30 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "required": [
+          "mode"
+        ],
+        "properties": {
+          "mode": {
+            "const": "regions"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "entities": {
+            "required": [
+              "presence"
+            ]
+          }
+        },
+        "required": [
+          "regions"
+        ]
+      }
     }
   ],
   "$defs": {
@@ -231,7 +284,8 @@
             "number",
             "button",
             "select",
-            "switch"
+            "switch",
+            "event"
           ]
         },
         "suffix": {

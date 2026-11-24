@@ -22,6 +22,12 @@ export interface BandSpec {
   encoding: "bitmask_nearest_first";
 }
 
+export interface RegionsSpec {
+  columns: number;
+  rows: number;
+  max_regions: number;
+}
+
 export interface Profile {
   id: string;
   name: string;
@@ -32,6 +38,7 @@ export interface Profile {
   entities: Partial<Record<Role, EntityMatch>>;
   field_of_view: { angle_deg: number; range_m: number };
   band?: BandSpec;
+  regions?: RegionsSpec;
   behavior: { sleepy: boolean; track_rearm_min?: number; lost_after_s?: number };
 }
 
@@ -57,6 +64,13 @@ export function usable(p: unknown): p is Profile {
       const b = x.band;
       if (!b || !Number.isInteger(b.count) || b.count < 1 || b.count > 32 || !(b.size_m > 0)) return false;
       if (b.encoding !== "bitmask_nearest_first") return false;
+    }
+    if (x.mode === "regions") {
+      const r = x.regions;
+      if (!r) return false;
+      if (![r.columns, r.rows, r.max_regions].every(
+        (n) => Number.isInteger(n) && n >= 1 && n <= 32
+      )) return false;
     }
     return true;
   } catch {

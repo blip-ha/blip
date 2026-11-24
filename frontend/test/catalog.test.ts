@@ -82,7 +82,7 @@ describe("generated files", () => {
   it("what it takes follows the rule: Z2M + a built mode = profile file, otherwise issue first", () => {
     const byId = Object.fromEntries(catalog.models.map((m) => [m.id, whatItTakes(m)]));
     expect(byId.aqara_fp1e).toBe("Profile file");
-    expect(byId.aqara_fp1).toBe("Issue first: new Regions mode");
+    expect(byId.aqara_fp1).toBe("Profile file");
     expect(byId.aqara_p2).toBe("Issue first: new Cone mode, Thread/Matter");
   });
   it("a new profile moves its model from Help wanted to Supported", () => {

@@ -76,6 +76,9 @@ export function discover(hass: Hass, allProfiles: Profile[]): Sensor[] {
 
   // 2. By entity pattern, for anything the registry didn't identify.
   for (const profile of profiles) {
+    // Presence-only profiles require a verified device-model match.
+    // A generic _presence suffix is not enough to identify a sensor model.
+    if (!profile.entities.range) continue;
     const anchorRole = MODES[profile.mode]!.required[0];
     const anchor = profile.entities[anchorRole]!;
     const anchors = Object.keys(states)
